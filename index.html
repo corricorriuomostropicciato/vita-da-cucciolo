@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vita da Cucciolo</title>
+<style>
+body {
+  margin: 0;
+  padding: 30px 15px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #eaf7fb;
+  color: #4a3b2e;
+}
+
+.box {
+  max-width: 500px;
+  margin: auto;
+  background: #fffcf4;
+  padding: 25px;
+  border-radius: 20px;
+}
+
+.dog {
+  font-size: 90px;
+  margin: 20px;
+}
+
+button {
+  padding: 12px;
+  margin: 5px;
+  border: 0;
+  border-radius: 12px;
+  background: #f5dca8;
+  font-size: 16px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>🐾 Vita da Cucciolo</h1>
+
+<p>Il tuo piccolo Pinscher ti aspetta! 🐶</p>
+
+<div class="dog">🐕</div>
+
+<p id="messaggio">
+Ciao! Sono felice di vederti! 💕
+</p>
+
+<button onclick="coccola()">💕 Coccola</button>
+<button onclick="gioca()">🎾 Gioca</button>
+<button onclick="nutri()">🍖 Nutri</button>
+
+</div>
+
+<script>
+
+function coccola() {
+  document.getElementById("messaggio").textContent =
+  "Il cucciolo si accoccola vicino a te. 💕";
+}
+
+function gioca() {
+  document.getElementById("messaggio").textContent =
+  "Il cucciolo corre felice dietro alla pallina! 🎾";
+}
+
+function nutri() {
+  document.getElementById("messaggio").textContent =
+  "Gnam gnam! Il cucciolo mangia tutto contento. 🍖";
+}
+
+</script>
+
+</body>
+</html>
