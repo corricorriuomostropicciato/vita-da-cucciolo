@@ -508,6 +508,10 @@ Le statistiche calano lentamente col tempo: torna a trovare il tuo cucciolo! �
 
 <script>
 
+/* =========================
+   STATO DEL CUCCIOLO
+========================= */
+
 let stato={
   fame:80,
   energia:80,
@@ -515,32 +519,174 @@ let stato={
   pulizia:80,
   affetto:0,
   dorme:false,
-  azione:false
+  azione:false,
+  ultimaVisita:Date.now()
 };
+
+
+/* =========================
+   SALVATAGGIO
+========================= */
+
+const SALVATAGGIO="vitaDaCucciolo";
+
+
+function salva(){
+
+  stato.ultimaVisita=Date.now();
+
+  localStorage.setItem(
+    SALVATAGGIO,
+    JSON.stringify({
+      fame:stato.fame,
+      energia:stato.energia,
+      felicita:stato.felicita,
+      pulizia:stato.pulizia,
+      affetto:stato.affetto,
+      ultimaVisita:stato.ultimaVisita
+    })
+  );
+
+  localStorage.setItem(
+    "vitaDaCuccioloNome",
+    document.getElementById("nome").value
+  );
+}
+
+
+/* =========================
+   CARICAMENTO
+========================= */
+
+function carica(){
+
+  let dati=localStorage.getItem(SALVATAGGIO);
+
+  let nomeSalvato=localStorage.getItem("vitaDaCuccioloNome");
+
+  if(nomeSalvato!==null){
+    document.getElementById("nome").value=nomeSalvato;
+  }
+
+  if(!dati){
+    return;
+  }
+
+  try{
+
+    let salvato=JSON.parse(dati);
+
+    stato.fame=salvato.fame;
+    stato.energia=salvato.energia;
+    stato.felicita=salvato.felicita;
+    stato.pulizia=salvato.pulizia;
+    stato.affetto=salvato.affetto;
+
+    let ultima=salvato.ultimaVisita || Date.now();
+
+    let passato=Date.now()-ultima;
+
+    /* 
+       TEMPO OFFLINE:
+       i bisogni scendono lentamente.
+       
+       Fame:       1 punto ogni 2 ore
+       Energia:    1 punto ogni 3 ore
+       Felicità:   1 punto ogni 3 ore
+       Pulizia:    1 punto ogni 4 ore
+    */
+
+    let ore=passato/(1000*60*60);
+
+    stato.fame=limite(
+      stato.fame-Math.floor(ore/2)
+    );
+
+    stato.energia=limite(
+      stato.energia-Math.floor(ore/3)
+    );
+
+    stato.felicita=limite(
+      stato.felicita-Math.floor(ore/3)
+    );
+
+    stato.pulizia=limite(
+      stato.pulizia-Math.floor(ore/4)
+    );
+
+    stato.dorme=false;
+    stato.azione=false;
+
+    /* Messaggio di ritorno */
+
+    if(ore>=1){
+
+      let oreIntere=Math.floor(ore);
+
+      if(oreIntere===1){
+        messaggio(
+          nome()+"! Sei tornata! Mi sei mancata! 🐶💕"
+        );
+      }else if(oreIntere<24){
+        messaggio(
+          nome()+" ti aspettava! 🐶❤️"
+        );
+      }else{
+        let giorni=Math.floor(ore/24);
+
+        messaggio(
+          nome()+"! Finalmente sei tornata dopo "+giorni+" giorno/i! 🥺🐾"
+        );
+      }
+
+    }
+
+  }catch(e){
+
+    console.log("Errore nel caricamento del salvataggio.");
+
+  }
+
+}
+
+
+/* =========================
+   FUNZIONI BASE
+========================= */
 
 function limite(x){
   return Math.max(0,Math.min(100,x));
 }
 
+
 function nome(){
   return document.getElementById("nome").value.trim() || "Il cucciolo";
 }
 
+
 function aggiorna(){
 
   document.getElementById("fame").style.width=stato.fame+"%";
+
   document.getElementById("energia").style.width=stato.energia+"%";
+
   document.getElementById("felicita").style.width=stato.felicita+"%";
+
   document.getElementById("pulizia").style.width=stato.pulizia+"%";
 
   document.getElementById("affetto").textContent=stato.affetto;
+
 }
+
 
 function messaggio(testo){
   document.getElementById("msg").textContent=testo;
 }
 
-/* PAPPA */
+
+/* =========================
+   PAPPA
+========================= */
 
 function nutri(){
 
@@ -552,16 +698,25 @@ function nutri(){
   if(stato.azione)return;
 
   stato.fame=limite(stato.fame+28);
+
   stato.pulizia=limite(stato.pulizia-4);
+
   stato.felicita=limite(stato.felicita+5);
+
   stato.affetto+=2;
 
-  messaggio(nome()+" scodinzola felice per la pappa! 🍖");
+  messaggio(
+    nome()+" scodinzola felice per la pappa! 🍖"
+  );
 
   aggiorna();
+  salva();
 }
 
-/* GIOCA */
+
+/* =========================
+   GIOCA
+========================= */
 
 function gioca(){
 
@@ -573,70 +728,112 @@ function gioca(){
   if(stato.azione)return;
 
   if(stato.energia<12){
-    messaggio(nome()+" è troppo stanco per giocare. 😴");
+
+    messaggio(
+      nome()+" è troppo stanco per giocare. 😴"
+    );
+
     return;
   }
 
   stato.azione=true;
 
   let dog=document.getElementById("dog");
+
   let ball=document.getElementById("ball");
 
   dog.classList.remove("walking");
+
   dog.classList.add("playing");
 
   ball.classList.remove("show");
+
   ball.classList.remove("play");
 
   void ball.offsetWidth;
 
   ball.classList.add("show");
+
   ball.classList.add("play");
 
-  stato.felicita=limite(stato.felicita+22);
-  stato.energia=limite(stato.energia-14);
-  stato.fame=limite(stato.fame-6);
+  stato.felicita=limite(
+    stato.felicita+22
+  );
+
+  stato.energia=limite(
+    stato.energia-14
+  );
+
+  stato.fame=limite(
+    stato.fame-6
+  );
+
   stato.affetto+=3;
 
-  messaggio(nome()+" corre dietro alla pallina! 🎾🐶");
+  messaggio(
+    nome()+" corre dietro alla pallina! 🎾🐶"
+  );
 
   aggiorna();
+  salva();
 
   setTimeout(function(){
 
     dog.classList.remove("playing");
+
     ball.classList.remove("show");
+
     ball.classList.remove("play");
 
     stato.azione=false;
 
-    messaggio(nome()+" è tornato tutto felice! ❤️🐾");
+    messaggio(
+      nome()+" è tornato tutto felice! ❤️🐾"
+    );
+
+    salva();
 
   },2100);
 }
 
-/* COCCOLE */
+
+/* =========================
+   COCCOLE
+========================= */
 
 function coccola(){
 
   if(stato.dorme){
-    messaggio(nome()+" dorme beato. 💤");
+
+    messaggio(
+      nome()+" dorme beato. 💤"
+    );
+
     return;
   }
 
   if(stato.azione)return;
 
-  stato.felicita=limite(stato.felicita+16);
+  stato.felicita=limite(
+    stato.felicita+16
+  );
+
   stato.affetto+=3;
 
-  messaggio(nome()+" adora le coccole! ❤️🥰");
+  messaggio(
+    nome()+" adora le coccole! ❤️🥰"
+  );
 
   creaCuori();
 
   aggiorna();
+  salva();
 }
 
-/* CUORICINI */
+
+/* =========================
+   CUORICINI
+========================= */
 
 function creaCuori(){
 
@@ -655,50 +852,83 @@ function creaCuori(){
       "💖"
     ][Math.floor(Math.random()*4)];
 
-    cuore.style.left=(43+Math.random()*18)+"%";
-    cuore.style.bottom=(25+Math.random()*15)+"%";
+    cuore.style.left=
+      (43+Math.random()*18)+"%";
+
+    cuore.style.bottom=
+      (25+Math.random()*15)+"%";
 
     scene.appendChild(cuore);
 
     setTimeout(function(){
+
       cuore.remove();
+
     },1600);
+
   }
 }
 
-/* BAGNETTO */
+
+/* =========================
+   BAGNETTO
+========================= */
 
 function bagno(){
 
   if(stato.dorme){
-    messaggio(nome()+" sta dormendo. 💤");
+
+    messaggio(
+      nome()+" sta dormendo. 💤"
+    );
+
     return;
   }
 
   if(stato.azione)return;
 
-  stato.pulizia=limite(stato.pulizia+30);
-  stato.felicita=limite(stato.felicita-4);
+  stato.pulizia=limite(
+    stato.pulizia+30
+  );
+
+  stato.felicita=limite(
+    stato.felicita-4
+  );
+
   stato.affetto+=1;
 
-  messaggio(nome()+" è pulito e profuma di buono! 🛁✨");
+  messaggio(
+    nome()+" è pulito e profuma di buono! 🛁✨"
+  );
 
   aggiorna();
+  salva();
 }
 
-/* PASSEGGIATA */
+
+/* =========================
+   PASSEGGIATA
+========================= */
 
 function passeggia(){
 
   if(stato.dorme){
-    messaggio(nome()+" sta dormendo. 💤");
+
+    messaggio(
+      nome()+" sta dormendo. 💤"
+    );
+
     return;
   }
 
   if(stato.azione)return;
 
   if(stato.energia<18){
-    messaggio(nome()+" è troppo stanco per passeggiare. 😴");
+
+    messaggio(
+      nome()+" è troppo stanco per passeggiare. 😴"
+    );
+
     return;
   }
 
@@ -712,27 +942,46 @@ function passeggia(){
 
   dog.classList.add("walking");
 
-  stato.felicita=limite(stato.felicita+18);
-  stato.energia=limite(stato.energia-16);
-  stato.pulizia=limite(stato.pulizia-8);
+  stato.felicita=limite(
+    stato.felicita+18
+  );
+
+  stato.energia=limite(
+    stato.energia-16
+  );
+
+  stato.pulizia=limite(
+    stato.pulizia-8
+  );
+
   stato.affetto+=4;
 
-  messaggio(nome()+" passeggia felice tra i campi! 🌼🐾");
+  messaggio(
+    nome()+" passeggia felice tra i campi! 🌼🐾"
+  );
 
   aggiorna();
+  salva();
 
   setTimeout(function(){
 
     dog.classList.remove("walking");
 
-    messaggio(nome()+" è tornato dalla passeggiata! 🐶🌼");
+    messaggio(
+      nome()+" è tornato dalla passeggiata! 🐶🌼"
+    );
 
     stato.azione=false;
+
+    salva();
 
   },3000);
 }
 
-/* DORMI */
+
+/* =========================
+   DORMI
+========================= */
 
 function dormi(){
 
@@ -746,9 +995,12 @@ function dormi(){
 
     zzz.classList.remove("show");
 
-    messaggio(nome()+" si è svegliato tutto arzillo! ☀️🐶");
+    messaggio(
+      nome()+" si è svegliato tutto arzillo! ☀️🐶"
+    );
 
     aggiorna();
+    salva();
 
     return;
   }
@@ -757,52 +1009,129 @@ function dormi(){
 
   zzz.classList.add("show");
 
-  messaggio(nome()+" si acciambella e si addormenta. 💤");
+  messaggio(
+    nome()+" si acciambella e si addormenta. 💤"
+  );
 
   aggiorna();
+  salva();
 
   setTimeout(function(){
 
     if(!stato.dorme)return;
 
-    stato.energia=limite(stato.energia+45);
-    stato.fame=limite(stato.fame-5);
+    stato.energia=limite(
+      stato.energia+45
+    );
+
+    stato.fame=limite(
+      stato.fame-5
+    );
 
     stato.dorme=false;
 
     zzz.classList.remove("show");
 
-    messaggio(nome()+" si è svegliato pieno di energia! ⚡🐶");
+    messaggio(
+      nome()+" si è svegliato pieno di energia! ⚡🐶"
+    );
 
     aggiorna();
+    salva();
 
   },5000);
 }
 
-/* IL TEMPO PASSA */
+
+/* =========================
+   IL TEMPO PASSA
+========================= */
 
 setInterval(function(){
 
   if(stato.dorme){
 
-    stato.fame=limite(stato.fame-1);
+    stato.fame=limite(
+      stato.fame-1
+    );
 
   }else{
 
-    stato.fame=limite(stato.fame-3);
-    stato.energia=limite(stato.energia-2);
-    stato.felicita=limite(stato.felicita-2);
-    stato.pulizia=limite(stato.pulizia-1);
+    stato.fame=limite(
+      stato.fame-3
+    );
+
+    stato.energia=limite(
+      stato.energia-2
+    );
+
+    stato.felicita=limite(
+      stato.felicita-2
+    );
+
+    stato.pulizia=limite(
+      stato.pulizia-1
+    );
 
   }
 
   aggiorna();
+  salva();
 
 },4000);
 
-/* AVVIO */
+
+/* =========================
+   SALVA QUANDO SI ESCE
+========================= */
+
+window.addEventListener("beforeunload",function(){
+
+  salva();
+
+});
+
+
+/* =========================
+   SALVA QUANDO LA PAGINA
+   VA IN BACKGROUND
+========================= */
+
+document.addEventListener(
+  "visibilitychange",
+  function(){
+
+    if(document.visibilityState==="hidden"){
+
+      salva();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   NOME
+========================= */
+
+document.getElementById("nome")
+.addEventListener("input",function(){
+
+  salva();
+
+});
+
+
+/* =========================
+   AVVIO
+========================= */
+
+carica();
 
 aggiorna();
+
+salva();
 
 </script>
 
