@@ -2,653 +2,382 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Vita da Cucciolo</title>
 
 <style>
-*{box-sizing:border-box}
-body{
-margin:0;padding:20px 10px;
-font-family:Arial,sans-serif;
-background:linear-gradient(#b9e6f5,#f4ead7);
-color:#4a3b2e
+*{
+  box-sizing:border-box;
 }
-.game{max-width:560px;margin:auto}
-h1{text-align:center;color:#c4602f;margin:5px 0}
-.subtitle{text-align:center;color:#7c6a57;margin-bottom:15px}
-.name{text-align:center;margin-bottom:12px}
-input{
-padding:7px 10px;border-radius:10px;
-border:2px solid #eadfc8;
-background:#fffdf6
-}
-.scene{
-position:relative;
-height:350px;
-overflow:hidden;
-border:5px solid #fffdf6;
-border-radius:22px;
-background:linear-gradient(#aee0f4 45%,#8fbe6a 45%);
-box-shadow:0 8px 20px #0002
-}
-.sun{
-position:absolute;right:12%;top:8%;
-width:65px;height:65px;
-border-radius:50%;
-background:#f7cb4a
-}
-.cloud{
-position:absolute;width:65px;height:20px;
-background:white;border-radius:30px;opacity:.8
-}
-.c1{top:12%;left:8%}.c2{top:20%;right:25%}
-.path{
-position:absolute;bottom:0;left:37%;
-width:26%;height:60%;
-background:#c99a63;
-clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)
-}
-.flower{
-position:absolute;width:10px;height:10px;
-border-radius:50%;background:#ee8aa3
-}
-.dog{
-position:absolute;
-left:50%;bottom:20%;
-transform:translateX(-50%);
-font-size:85px;
-animation:salta 2.5s infinite ease-in-out
-}
-@keyframes salta{
-50%{transform:translateX(-50%) translateY(-8px)}
-}
-.bubble{
-position:absolute;
-top:8%;left:55%;
-background:white;
-padding:7px 12px;
-border-radius:15px;
-font-size:20px;
-display:none;
-box-shadow:0 3px 8px #0002
-}
-.bubble.show{display:block}
-.msg{
-text-align:center;
-font-weight:bold;
-color:#c4602f;
-min-height:25px;
-margin:13px 0
-}
-.stats{
-background:#fffdf6;
-border:2px solid #ede2c9;
-border-radius:16px;
-padding:14px
-}
-.row{
-display:flex;
-align-items:center;
-gap:9px;
-margin:9px 0
-}
-.icon{width:22px}
-.label{width:75px;font-weight:bold;font-size:13px}
-.track{
-flex:1;height:14px;
-background:#f1e7d2;
-border-radius:10px;
-overflow:hidden
-}
-.bar{
-height:100%;
-width:80%;
-border-radius:10px;
-background:#7cb86a;
-transition:.4s
-}
-.actions{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:8px;
-margin-top:12px
-}
-button{
-border:2px solid #ede2c9;
-background:#fffdf6;
-border-radius:14px;
-padding:10px 4px;
-font-weight:bold;
-cursor:pointer
-}
-button:active{transform:scale(.94)}
-.big{font-size:20px;display:block}
-.affetto{text-align:center;color:#7c6a57}
-.affetto b{color:#c4602f}
-.footer{text-align:center;font-size:11px;color:#7c6a57}
-</style>
-</head>
-
-<body>
-
-<div class="game">
-
-<h1>🐾 Vita da Cucciolo</h1>
-
-<div class="subtitle">
-Prenditi cura del tuo Pinscher toy in campagna 🌼
-</div>
-
-<div class="name">
-Il suo nome è
-<input id="nome" value="Briciola" maxlength="14">
-</div>
-
-<div class="scene">
-
-<div class="sun"></div>
-<div class="cloud c1"></div>
-<div class="cloud c2"></div>
-<div class="path"></div>
-
-<div class="flower" style="left:8%;bottom:12%"></div>
-<div class="flower" style="left:15%;bottom:18%"></div>
-<div class="flower" style="right:12%;bottom:15%"></div>
-<div class="flower" style="right:20%;bottom:25%"></div>
-
-<div class="bubble" id="bubble"></div>
-
-<div class="dog" id="dog">🐕</div>
-
-</div>
-
-<div class="msg" id="msg">
-Ciao! Sono felice di vederti! 🐶💕
-</div>
-
-<div class="stats">
-
-<div class="row">
-<div class="icon">🍖</div>
-<div class="label">Fame</div>
-<div class="track">
-<div class="bar" id="fame"></div>
-</div>
-</div>
-
-<div class="row">
-<div class="icon">⚡</div>
-<div class="label">Energia</div>
-<div class="track">
-<div class="bar" id="energia"></div>
-</div>
-</div>
-
-<div class="row">
-<div class="icon">💕</div>
-<div class="label">Felicità</div>
-<div class="track">
-<div class="bar" id="felicita"></div>
-</div>
-</div>
-
-<div class="row">
-<div class="icon">🧼</div>
-<div class="label">Pulizia</div>
-<div class="track">
-<div class="bar" id="pulizia"></div>
-</div>
-</div>
-
-</div>
-
-<div class="actions">
-
-<button onclick="nutri()">
-<span class="big">🍖</span>
-Nutri
-</button>
-
-<button onclick="gioca()">
-<span class="big">🎾</span>
-Gioca
-</button>
-
-<button onclick="coccola()">
-<span class="big">💕</span>
-Coccola
-</button>
-
-<button onclick="bagno()">
-<span class="big">🛁</span>
-Bagnetto
-</button>
-
-<button onclick="passeggia()">
-<span class="big">🌼</span>
-Passeggia
-</button>
-
-<button onclick="dormi()">
-<span class="big">💤</span>
-Dormi
-</button>
-
-</div>
-
-<p class="affetto">
-Affetto guadagnato:
-<b id="affetto">0</b> 💗
-</p>
-
-<p class="footer">
-Le statistiche calano lentamente col tempo: torna a trovarlo! 🐾
-</p>
-
-</div>
-
-<script>
-
-let stato={
-fame:80,
-energia:80,
-felicita:80,
-pulizia:80,
-affetto:0,
-dorme:false
-};
-
-function limite(x){
-return Math.max(0,Math.min(100,x));
-}
-
-function nome(){
-return document.getElementById("nome").value.trim()||"Il cucciolo";
-}
-
-function aggiorna(){
-
-document.getElementById("fame").style.width=stato.fame+"%";
-document.getElementById("energia").style.width=stato.energia+"%";
-document.getElementById("felicita").style.width=stato.felicita+"%";
-document.getElementById("pulizia").style.width=stato.pulizia+"%";
-
-document.getElementById("affetto").textContent=stato.affetto;
-
-}
-
-function messaggio(testo){
-document.getElementById("msg").textContent=testo;
-}
-
-function nutri(){
-
-if(stato.dorme){
-messaggio(nome()+" sta dormendo. 💤");
-return;
-}
-
-stato.fame=limite(stato.fame+28);
-stato.pulizia=limite(stato.pulizia-4);
-stato.affetto+=2;
-
-messaggio(nome()+" scodinzola felice per la pappa! 🍖");
-
-aggiorna();
-}
-
-function gioca(){
-
-if(stato.dorme){
-messaggio(nome()+" sta dormendo. 💤");
-return;
-}
-
-if(stato.energia<12){
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vita da Cucciolo</title>
-
-<style>
-*{box-sizing:border-box}
 
 body{
-margin:0;
-padding:20px 10px;
-font-family:Arial,sans-serif;
-background:linear-gradient(#b9e6f5,#f4ead7);
-color:#4a3b2e
+  margin:0;
+  padding:20px 10px;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(#b9e6f5,#f4ead7);
+  color:#4a3b2e;
 }
 
 .game{
-max-width:560px;
-margin:auto
+  max-width:560px;
+  margin:auto;
 }
 
 h1{
-text-align:center;
-color:#c4602f;
-margin:5px 0
+  text-align:center;
+  color:#c4602f;
+  margin:5px 0;
 }
 
 .subtitle{
-text-align:center;
-color:#7c6a57;
-margin-bottom:15px
+  text-align:center;
+  color:#7c6a57;
+  margin-bottom:15px;
 }
 
 .name{
-text-align:center;
-margin-bottom:12px
+  text-align:center;
+  margin-bottom:12px;
 }
 
 input{
-padding:7px 10px;
-border-radius:10px;
-border:2px solid #eadfc8;
-background:#fffdf6
+  padding:7px 10px;
+  border-radius:10px;
+  border:2px solid #eadfc8;
+  background:#fffdf6;
 }
 
 /* SCENA */
 
 .scene{
-position:relative;
-height:350px;
-overflow:hidden;
-border:5px solid #fffdf6;
-border-radius:22px;
-background:linear-gradient(#aee0f4 45%,#8fbe6a 45%);
-box-shadow:0 8px 20px #0002
+  position:relative;
+  height:350px;
+  overflow:hidden;
+  border:5px solid #fffdf6;
+  border-radius:22px;
+  background:linear-gradient(#aee0f4 45%,#8fbe6a 45%);
+  box-shadow:0 8px 20px #0002;
 }
 
 .sun{
-position:absolute;
-right:12%;
-top:8%;
-width:65px;
-height:65px;
-border-radius:50%;
-background:#f7cb4a
+  position:absolute;
+  right:12%;
+  top:8%;
+  width:65px;
+  height:65px;
+  border-radius:50%;
+  background:#f7cb4a;
 }
 
 .cloud{
-position:absolute;
-width:65px;
-height:20px;
-background:white;
-border-radius:30px;
-opacity:.8
+  position:absolute;
+  width:65px;
+  height:20px;
+  background:white;
+  border-radius:30px;
+  opacity:.8;
 }
 
-.c1{top:12%;left:8%}
-.c2{top:20%;right:25%}
+.c1{
+  top:12%;
+  left:8%;
+}
+
+.c2{
+  top:20%;
+  right:25%;
+}
 
 .path{
-position:absolute;
-bottom:0;
-left:37%;
-width:26%;
-height:60%;
-background:#c99a63;
-clip-path:polygon(40% 0,60% 0,100% 100%,0 100%)
+  position:absolute;
+  bottom:0;
+  left:37%;
+  width:26%;
+  height:60%;
+  background:#c99a63;
+  clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);
 }
 
 .flower{
-position:absolute;
-width:10px;
-height:10px;
-border-radius:50%;
-background:#ee8aa3
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#ee8aa3;
 }
 
 /* CUCCIOLO */
 
 .dog{
-position:absolute;
-left:50%;
-bottom:20%;
-transform:translateX(-50%);
-font-size:85px;
-z-index:5;
-animation:salta 2.5s infinite ease-in-out
+  position:absolute;
+  left:50%;
+  bottom:20%;
+  transform:translateX(-50%);
+  font-size:85px;
+  z-index:5;
+  animation:salta 2.5s infinite ease-in-out;
 }
 
 @keyframes salta{
-50%{
-transform:translateX(-50%) translateY(-8px)
-}
+  50%{
+    transform:translateX(-50%) translateY(-8px);
+  }
 }
 
 /* PALLINA */
 
 .ball{
-position:absolute;
-font-size:32px;
-left:18%;
-bottom:22%;
-z-index:4;
-display:none
+  position:absolute;
+  font-size:32px;
+  left:18%;
+  bottom:22%;
+  z-index:4;
+  display:none;
 }
 
 .ball.show{
-display:block
+  display:block;
 }
 
 .ball.play{
-animation:balla 2s ease-in-out
+  animation:balla 2s ease-in-out;
 }
 
 @keyframes balla{
-0%{left:18%;bottom:22%}
-45%{left:70%;bottom:28%}
-100%{left:18%;bottom:22%}
+  0%{
+    left:18%;
+    bottom:22%;
+  }
+
+  45%{
+    left:70%;
+    bottom:28%;
+  }
+
+  100%{
+    left:18%;
+    bottom:22%;
+  }
 }
 
-/* ANIMAZIONE GIOCO */
+/* GIOCO */
 
 .dog.playing{
-animation:corsa 2s ease-in-out;
+  animation:corsa 2s ease-in-out;
 }
 
 @keyframes corsa{
-0%{
-left:50%;
-transform:translateX(-50%)
-}
-45%{
-left:72%;
-transform:translateX(-50%) translateY(-10px)
-}
-100%{
-left:50%;
-transform:translateX(-50%)
-}
+  0%{
+    left:50%;
+    transform:translateX(-50%);
+  }
+
+  45%{
+    left:72%;
+    transform:translateX(-50%) translateY(-10px);
+  }
+
+  100%{
+    left:50%;
+    transform:translateX(-50%);
+  }
 }
 
 /* PASSEGGIATA */
 
 .dog.walking{
-animation:cammina 3s linear;
+  animation:cammina 3s linear;
 }
 
 @keyframes cammina{
-0%{
-left:5%;
-transform:translateX(-50%)
-}
-50%{
-left:50%;
-transform:translateX(-50%) translateY(-7px)
-}
-100%{
-left:95%;
-transform:translateX(-50%)
-}
+  0%{
+    left:5%;
+    transform:translateX(-50%);
+  }
+
+  50%{
+    left:50%;
+    transform:translateX(-50%) translateY(-7px);
+  }
+
+  100%{
+    left:95%;
+    transform:translateX(-50%);
+  }
 }
 
-/* CUORICINI */
+/* CUORI */
 
 .heart{
-position:absolute;
-font-size:25px;
-z-index:10;
-pointer-events:none;
-animation:cuore 1.6s ease-out forwards
+  position:absolute;
+  font-size:25px;
+  z-index:10;
+  pointer-events:none;
+  animation:cuore 1.6s ease-out forwards;
 }
 
 @keyframes cuore{
-0%{
-opacity:1;
-transform:translateY(0) scale(.7)
-}
-100%{
-opacity:0;
-transform:translateY(-120px) scale(1.4)
-}
+  0%{
+    opacity:1;
+    transform:translateY(0) scale(.7);
+  }
+
+  100%{
+    opacity:0;
+    transform:translateY(-120px) scale(1.4);
+  }
 }
 
 /* ZZZ */
 
 .zzz{
-position:absolute;
-left:58%;
-bottom:48%;
-font-size:24px;
-z-index:10;
-display:none
+  position:absolute;
+  left:58%;
+  bottom:48%;
+  font-size:24px;
+  z-index:10;
+  display:none;
 }
 
 .zzz.show{
-display:block;
-animation:zzz 1.5s infinite ease-in-out
+  display:block;
+  animation:zzz 1.5s infinite ease-in-out;
 }
 
 @keyframes zzz{
-0%{opacity:.3;transform:translateY(5px)}
-50%{opacity:1;transform:translateY(-5px)}
-100%{opacity:.3;transform:translateY(-12px)}
+  0%{
+    opacity:.3;
+    transform:translateY(5px);
+  }
+
+  50%{
+    opacity:1;
+    transform:translateY(-5px);
+  }
+
+  100%{
+    opacity:.3;
+    transform:translateY(-12px);
+  }
 }
 
 /* FUMETTO */
 
 .bubble{
-position:absolute;
-top:8%;
-left:55%;
-background:white;
-padding:7px 12px;
-border-radius:15px;
-font-size:20px;
-display:none;
-box-shadow:0 3px 8px #0002;
-z-index:20
+  position:absolute;
+  top:8%;
+  left:55%;
+  background:white;
+  padding:7px 12px;
+  border-radius:15px;
+  font-size:20px;
+  display:none;
+  box-shadow:0 3px 8px #0002;
+  z-index:20;
 }
 
 .bubble.show{
-display:block
+  display:block;
 }
 
 /* MESSAGGIO */
 
 .msg{
-text-align:center;
-font-weight:bold;
-color:#c4602f;
-min-height:25px;
-margin:13px 0
+  text-align:center;
+  font-weight:bold;
+  color:#c4602f;
+  min-height:25px;
+  margin:13px 0;
 }
 
 /* STATISTICHE */
 
 .stats{
-background:#fffdf6;
-border:2px solid #ede2c9;
-border-radius:16px;
-padding:14px
+  background:#fffdf6;
+  border:2px solid #ede2c9;
+  border-radius:16px;
+  padding:14px;
 }
 
 .row{
-display:flex;
-align-items:center;
-gap:9px;
-margin:9px 0
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:9px 0;
 }
 
 .icon{
-width:22px
+  width:22px;
 }
 
 .label{
-width:75px;
-font-weight:bold;
-font-size:13px
+  width:75px;
+  font-weight:bold;
+  font-size:13px;
 }
 
 .track{
-flex:1;
-height:14px;
-background:#f1e7d2;
-border-radius:10px;
-overflow:hidden
+  flex:1;
+  height:14px;
+  background:#f1e7d2;
+  border-radius:10px;
+  overflow:hidden;
 }
 
 .bar{
-height:100%;
-width:80%;
-border-radius:10px;
-background:#7cb86a;
-transition:.4s
+  height:100%;
+  width:80%;
+  border-radius:10px;
+  background:#7cb86a;
+  transition:.4s;
 }
 
 /* PULSANTI */
 
 .actions{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:8px;
-margin-top:12px
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:12px;
 }
 
 button{
-border:2px solid #ede2c9;
-background:#fffdf6;
-border-radius:14px;
-padding:10px 4px;
-font-weight:bold;
-cursor:pointer;
-transition:.15s
+  border:2px solid #ede2c9;
+  background:#fffdf6;
+  border-radius:14px;
+  padding:10px 4px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.15s;
 }
 
 button:active{
-transform:scale(.94)
+  transform:scale(.94);
 }
 
 button:disabled{
-opacity:.5;
-cursor:not-allowed
+  opacity:.5;
+  cursor:not-allowed;
 }
 
 .big{
-font-size:20px;
-display:block
+  font-size:20px;
+  display:block;
 }
 
 .affetto{
-text-align:center;
-color:#7c6a57
+  text-align:center;
+  color:#7c6a57;
 }
 
 .affetto b{
-color:#c4602f
+  color:#c4602f;
 }
 
 .footer{
-text-align:center;
-font-size:11px;
-color:#7c6a57
+  text-align:center;
+  font-size:11px;
+  color:#7c6a57;
 }
 </style>
 </head>
@@ -780,306 +509,302 @@ Le statistiche calano lentamente col tempo: torna a trovare il tuo cucciolo! �
 <script>
 
 let stato={
-fame:80,
-energia:80,
-felicita:80,
-pulizia:80,
-affetto:0,
-dorme:false,
-azione:false
+  fame:80,
+  energia:80,
+  felicita:80,
+  pulizia:80,
+  affetto:0,
+  dorme:false,
+  azione:false
 };
 
 function limite(x){
-return Math.max(0,Math.min(100,x));
+  return Math.max(0,Math.min(100,x));
 }
 
 function nome(){
-return document.getElementById("nome").value.trim()||"Il cucciolo";
+  return document.getElementById("nome").value.trim() || "Il cucciolo";
 }
 
 function aggiorna(){
 
-document.getElementById("fame").style.width=stato.fame+"%";
-document.getElementById("energia").style.width=stato.energia+"%";
-document.getElementById("felicita").style.width=stato.felicita+"%";
-document.getElementById("pulizia").style.width=stato.pulizia+"%";
+  document.getElementById("fame").style.width=stato.fame+"%";
+  document.getElementById("energia").style.width=stato.energia+"%";
+  document.getElementById("felicita").style.width=stato.felicita+"%";
+  document.getElementById("pulizia").style.width=stato.pulizia+"%";
 
-document.getElementById("affetto").textContent=stato.affetto;
-
+  document.getElementById("affetto").textContent=stato.affetto;
 }
 
 function messaggio(testo){
-document.getElementById("msg").textContent=testo;
-}
-
-/* BLOCCA LE AZIONI DURANTE LE ANIMAZIONI */
-
-function bloccaAzione(){
-stato.azione=true;
-
-setTimeout(function(){
-stato.azione=false;
-},2500);
+  document.getElementById("msg").textContent=testo;
 }
 
 /* PAPPA */
 
 function nutri(){
 
-if(stato.dorme){
-messaggio(nome()+" sta dormendo. 💤");
-return;
-}
+  if(stato.dorme){
+    messaggio(nome()+" sta dormendo. 💤");
+    return;
+  }
 
-if(stato.azione)return;
+  if(stato.azione)return;
 
-stato.fame=limite(stato.fame+28);
-stato.pulizia=limite(stato.pulizia-4);
-stato.affetto+=2;
+  stato.fame=limite(stato.fame+28);
+  stato.pulizia=limite(stato.pulizia-4);
+  stato.felicita=limite(stato.felicita+5);
+  stato.affetto+=2;
 
-messaggio(nome()+" scodinzola felice per la pappa! 🍖");
+  messaggio(nome()+" scodinzola felice per la pappa! 🍖");
 
-aggiorna();
+  aggiorna();
 }
 
 /* GIOCA */
 
 function gioca(){
 
-if(stato.dorme){
-messaggio(nome()+" sta dormendo. 💤");
-return;
-}
+  if(stato.dorme){
+    messaggio(nome()+" sta dormendo. 💤");
+    return;
+  }
 
-if(stato.energia<12){
-messaggio(nome()+" è troppo stanco per giocare. 😴");
-return;
-}
+  if(stato.azione)return;
 
-if(stato.azione)return;
+  if(stato.energia<12){
+    messaggio(nome()+" è troppo stanco per giocare. 😴");
+    return;
+  }
 
-stato.azione=true;
+  stato.azione=true;
 
-let dog=document.getElementById("dog");
-let ball=document.getElementById("ball");
+  let dog=document.getElementById("dog");
+  let ball=document.getElementById("ball");
 
-dog.classList.remove("walking");
-dog.classList.add("playing");
+  dog.classList.remove("walking");
+  dog.classList.add("playing");
 
-ball.classList.remove("show");
-ball.classList.remove("play");
+  ball.classList.remove("show");
+  ball.classList.remove("play");
 
-void ball.offsetWidth;
+  void ball.offsetWidth;
 
-ball.classList.add("show");
-ball.classList.add("play");
+  ball.classList.add("show");
+  ball.classList.add("play");
 
-stato.felicita=limite(stato.felicita+22);
-stato.energia=limite(stato.energia-14);
-stato.fame=limite(stato.fame-6);
-stato.affetto+=3;
+  stato.felicita=limite(stato.felicita+22);
+  stato.energia=limite(stato.energia-14);
+  stato.fame=limite(stato.fame-6);
+  stato.affetto+=3;
 
-messaggio(nome()+" corre dietro alla pallina! 🎾🐶");
+  messaggio(nome()+" corre dietro alla pallina! 🎾🐶");
 
-aggiorna();
+  aggiorna();
 
-setTimeout(function(){
+  setTimeout(function(){
 
-dog.classList.remove("playing");
-ball.classList.remove("show");
-ball.classList.remove("play");
+    dog.classList.remove("playing");
+    ball.classList.remove("show");
+    ball.classList.remove("play");
 
-stato.azione=false;
+    stato.azione=false;
 
-messaggio(nome()+" è tornato tutto felice! ❤️🐾");
+    messaggio(nome()+" è tornato tutto felice! ❤️🐾");
 
-},2100);
-
+  },2100);
 }
 
 /* COCCOLE */
 
 function coccola(){
 
-if(stato.dorme){
-messaggio(nome()+" dorme beato. 💤");
-return;
-}
+  if(stato.dorme){
+    messaggio(nome()+" dorme beato. 💤");
+    return;
+  }
 
-if(stato.azione)return;
+  if(stato.azione)return;
 
-stato.felicita=limite(stato.felicita+16);
-stato.affetto+=3;
+  stato.felicita=limite(stato.felicita+16);
+  stato.affetto+=3;
 
-messaggio(nome()+" adora le coccole! ❤️🥰");
+  messaggio(nome()+" adora le coccole! ❤️🥰");
 
-creaCuori();
+  creaCuori();
 
-aggiorna();
+  aggiorna();
 }
 
 /* CUORICINI */
 
 function creaCuori(){
 
-let scene=document.getElementById("scene");
+  let scene=document.getElementById("scene");
 
-for(let i=0;i<7;i++){
+  for(let i=0;i<7;i++){
 
-let cuore=document.createElement("div");
+    let cuore=document.createElement("div");
 
-cuore.className="heart";
-cuore.textContent=["❤️","💕","💗","💖"][Math.floor(Math.random()*4)];
+    cuore.className="heart";
 
-cuore.style.left=(43+Math.random()*18)+"%";
-cuore.style.bottom=(25+Math.random()*15)+"%";
+    cuore.textContent=[
+      "❤️",
+      "💕",
+      "💗",
+      "💖"
+    ][Math.floor(Math.random()*4)];
 
-scene.appendChild(cuore);
+    cuore.style.left=(43+Math.random()*18)+"%";
+    cuore.style.bottom=(25+Math.random()*15)+"%";
 
-setTimeout(function(){
-cuore.remove();
-},1600);
-}
+    scene.appendChild(cuore);
 
+    setTimeout(function(){
+      cuore.remove();
+    },1600);
+  }
 }
 
 /* BAGNETTO */
 
 function bagno(){
 
-if(stato.dorme){
-messaggio(nome()+" sta dormendo. 💤");
-return;
-}
+  if(stato.dorme){
+    messaggio(nome()+" sta dormendo. 💤");
+    return;
+  }
 
-if(stato.azione)return;
+  if(stato.azione)return;
 
-stato.pulizia=limite(stato.pulizia+30);
-stato.felicita=limite(stato.felicita-4);
-stato.affetto+=1;
+  stato.pulizia=limite(stato.pulizia+30);
+  stato.felicita=limite(stato.felicita-4);
+  stato.affetto+=1;
 
-messaggio(nome()+" è pulito e profuma di buono! 🛁✨");
+  messaggio(nome()+" è pulito e profuma di buono! 🛁✨");
 
-aggiorna();
+  aggiorna();
 }
 
 /* PASSEGGIATA */
 
 function passeggia(){
 
-if(stato.dorme){
-messaggio(nome()+" sta dormendo. 💤");
-return;
-}
+  if(stato.dorme){
+    messaggio(nome()+" sta dormendo. 💤");
+    return;
+  }
 
-if(stato.energia<18){
-messaggio(nome()+" è troppo stanco per passeggiare. 😴");
-return;
-}
+  if(stato.azione)return;
 
-if(stato.azione)return;
+  if(stato.energia<18){
+    messaggio(nome()+" è troppo stanco per passeggiare. 😴");
+    return;
+  }
 
-stato.azione=true;
+  stato.azione=true;
 
-let dog=document.getElementById("dog");
+  let dog=document.getElementById("dog");
 
-dog.classList.remove("playing");
+  dog.classList.remove("playing");
 
-void dog.offsetWidth;
+  void dog.offsetWidth;
 
-dog.classList.add("walking");
+  dog.classList.add("walking");
 
-stato.felicita=limite(stato.felicita+18);
-stato.energia=limite(stato.energia-16);
-stato.pulizia=limite(stato.pulizia-8);
-stato.affetto+=4;
+  stato.felicita=limite(stato.felicita+18);
+  stato.energia=limite(stato.energia-16);
+  stato.pulizia=limite(stato.pulizia-8);
+  stato.affetto+=4;
 
-messaggio(nome()+" passeggia felice tra i campi! 🌼🐾");
+  messaggio(nome()+" passeggia felice tra i campi! 🌼🐾");
 
-aggiorna();
+  aggiorna();
 
-setTimeout(function(){
+  setTimeout(function(){
 
-dog.classList.remove("walking");
+    dog.classList.remove("walking");
 
-messaggio(nome()+" è tornato dalla passeggiata! 🐶🌼");
+    messaggio(nome()+" è tornato dalla passeggiata! 🐶🌼");
 
-stato.azione=false;
+    stato.azione=false;
 
-},3000);
-
+  },3000);
 }
 
 /* DORMI */
 
 function dormi(){
 
-if(stato.azione)return;
+  if(stato.azione)return;
 
-let zzz=document.getElementById("zzz");
+  let zzz=document.getElementById("zzz");
 
-if(stato.dorme){
+  if(stato.dorme){
 
-stato.dorme=false;
+    stato.dorme=false;
 
-zzz.classList.remove("show");
+    zzz.classList.remove("show");
 
-messaggio(nome()+" si è svegliato tutto arzillo! ☀️🐶");
+    messaggio(nome()+" si è svegliato tutto arzillo! ☀️🐶");
 
-aggiorna();
+    aggiorna();
 
-return;
-}
+    return;
+  }
 
-stato.dorme=true;
+  stato.dorme=true;
 
-zzz.classList.add("show");
+  zzz.classList.add("show");
 
-messaggio(nome()+" si acciambella e si addormenta. 💤");
+  messaggio(nome()+" si acciambella e si addormenta. 💤");
 
-aggiorna();
+  aggiorna();
 
-setTimeout(function(){
+  setTimeout(function(){
 
-if(!stato.dorme)return;
+    if(!stato.dorme)return;
 
-stato.energia=limite(stato.energia+45);
-stato.dorme=false;
+    stato.energia=limite(stato.energia+45);
+    stato.fame=limite(stato.fame-5);
 
-zzz.classList.remove("show");
+    stato.dorme=false;
 
-messaggio(nome()+" si è svegliato pieno di energia! ⚡🐶");
+    zzz.classList.remove("show");
 
-aggiorna();
+    messaggio(nome()+" si è svegliato pieno di energia! ⚡🐶");
 
-},5000);
+    aggiorna();
 
+  },5000);
 }
 
 /* IL TEMPO PASSA */
 
 setInterval(function(){
 
-if(stato.dorme){
+  if(stato.dorme){
 
-stato.fame=limite(stato.fame-1);
+    stato.fame=limite(stato.fame-1);
 
-}else{
+  }else{
 
-stato.fame=limite(stato.fame-3);
-stato.energia=limite(stato.energia-2);
-stato.felicita=limite(stato.felicita-2);
-stato.pulizia=limite(stato.pulizia-1);
+    stato.fame=limite(stato.fame-3);
+    stato.energia=limite(stato.energia-2);
+    stato.felicita=limite(stato.felicita-2);
+    stato.pulizia=limite(stato.pulizia-1);
 
-}
+  }
 
-aggiorna();
+  aggiorna();
 
 },4000);
+
+/* AVVIO */
 
 aggiorna();
 
 </script>
 
 </body>
-</html>
+  </html>
