@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: #f7f3ee;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .game {
+        width: min(94vw, 430px);
+        text-align: center;
+    }
+
+    h1 {
+        margin: 0 0 10px;
+        font-size: 38px;
+    }
+
+    .score {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    canvas {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background: #ffffff;
+        border: 4px solid #222;
+        border-radius: 15px;
+        display: block;
+        touch-action: none;
+    }
+
+    .controls {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, 70px);
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .controls button,
+    #retry {
+        border: none;
+        border-radius: 12px;
+        background: #222;
+        color: white;
+        font-size: 25px;
+        min-height: 58px;
+        cursor: pointer;
+    }
+
+    .controls button:active,
+    #retry:active {
+        transform: scale(0.95);
+    }
+
+    .empty {
+        visibility: hidden;
+    }
+
+    #gameOver {
+        display: none;
+        margin-top: 15px;
+    }
+
+    #gameOver p {
+        font-size: 22px;
+        margin: 8px 0 12px;
+    }
+
+    #retry {
+        padding: 12px 25px;
+        font-size: 18px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <h1>🐍 Snake</h1>
+
+    <div class="score">
+        Punteggio: <span id="score">0</span>
+    </div>
+
+    <canvas id="game" width="400" height="400"></canvas>
+
+    <div id="gameOver">
+        <p>💥 Game Over!</p>
+        <button id="retry">🔄 Riprova</button>
+    </div>
+
+    <div class="controls">
+        <button class="empty">•</button>
+        <button onclick="changeDirection('up')">⬆️</button>
+        <button class="empty">•</button>
+
+        <button onclick="changeDirection('left')">⬅️</button>
+        <button onclick="changeDirection('down')">⬇️</button>
+        <button onclick="changeDirection('right')">➡️</button>
+    </div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const grid = 20;
+const tileCount = canvas.width / grid;
+
+let snake;
+let food;
+let direction;
+let nextDirection;
+let score;
+let gameRunning;
+let gameLoop;
+
+function startGame() {
+
+    snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+    ];
+
+    direction = "right";
+    nextDirection = "right";
+
+    score = 0;
+    gameRunning = true;
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("gameOver").style.display = "none";
+
+    createFood();
+
+    clearInterval(gameLoop);
+    gameLoop = setInterval(updateGame, 120);
+}
+
+function createFood() {
+
+    do {
+        food = {
+            x: Math.floor(Math.random() * tileCount),
+            y: Math.floor(Math.random() * tileCount)
+        };
+    } while (
+        snake.some(part => part.x === food.x && part.y === food.y)
+    );
+}
+
+function updateGame() {
+
+    if (!gameRunning) return;
+
+    direction = nextDirection;
+
+    const head = {
+        x: snake[0].x,
+        y: snake[0].y
+    };
+
+    if (direction === "up") head.y--;
+    if (direction === "down") head.y++;
+    if (direction === "left") head.x--;
+    if (direction === "right") head.x++;
+
+    // Collisione con i bordi
+    if (
+        head.x < 0 ||
+        head.x >= tileCount ||
+        head.y < 0 ||
+        head.y >= tileCount
+    ) {
+        endGame();
+        return;
+    }
+
+    // Collisione con il corpo
+    if (
+        snake.some(part => part.x === head.x && part.y === head.y)
+    ) {
+        endGame();
+        return;
+    }
+
+    snake.unshift(head);
+
+    // Mangiato il cibo
+    if (head.x === food.x && head.y === food.y) {
+
+        score++;
+        document.getElementById("score").textContent = score;
+
+        createFood();
+
+    } else {
+
+        snake.pop();
+    }
+
+    drawGame();
+}
+
+function drawGame() {
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Cibo
+    ctx.font = "18px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+        "🍎",
+        food.x * grid + grid / 2,
+        food.y * grid + grid / 2
+    );
+
+    // Serpente
+    snake.forEach((part, index) => {
+
+        ctx.fillStyle = index === 0 ? "#222" : "#555";
+
+        ctx.beginPath();
+
+        ctx.roundRect(
+            part.x * grid + 1,
+            part.y * grid + 1,
+            grid - 2,
+            grid - 2,
+            5
+        );
+
+        ctx.fill();
+    });
+}
+
+function changeDirection(newDirection) {
+
+    if (!gameRunning) return;
+
+    if (
+        newDirection === "up" &&
+        direction !== "down"
+    ) {
+        nextDirection = "up";
+    }
+
+    if (
+        newDirection === "down" &&
+        direction !== "up"
+    ) {
+        nextDirection = "down";
+    }
+
+    if (
+        newDirection === "left" &&
+        direction !== "right"
+    ) {
+        nextDirection = "left";
+    }
+
+    if (
+        newDirection === "right" &&
+        direction !== "left"
+    ) {
+        nextDirection = "right";
+    }
+}
+
+// Tastiera
+document.addEventListener("keydown", function(event) {
+
+    if (event.key === "ArrowUp") {
+        changeDirection("up");
+    }
+
+    if (event.key === "ArrowDown") {
+        changeDirection("down");
+    }
+
+    if (event.key === "ArrowLeft") {
+        changeDirection("left");
+    }
+
+    if (event.key === "ArrowRight") {
+        changeDirection("right");
+    }
+});
+
+// Pulsante Riprova
+document.getElementById("retry").addEventListener("click", function() {
+    startGame();
+});
+
+// Avvio iniziale
+startGame();
+
+</script>
+
+</body>
+</html>
