@@ -1,1138 +1,585 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vita da Cucciolo</title>
-
-<style>
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  padding:20px 10px;
-  font-family:Arial,sans-serif;
-  background:linear-gradient(#b9e6f5,#f4ead7);
-  color:#4a3b2e;
-}
-
-.game{
-  max-width:560px;
-  margin:auto;
-}
-
-h1{
-  text-align:center;
-  color:#c4602f;
-  margin:5px 0;
-}
-
-.subtitle{
-  text-align:center;
-  color:#7c6a57;
-  margin-bottom:15px;
-}
-
-.name{
-  text-align:center;
-  margin-bottom:12px;
-}
-
-input{
-  padding:7px 10px;
-  border-radius:10px;
-  border:2px solid #eadfc8;
-  background:#fffdf6;
-}
-
-/* SCENA */
-
-.scene{
-  position:relative;
-  height:350px;
-  overflow:hidden;
-  border:5px solid #fffdf6;
-  border-radius:22px;
-  background:linear-gradient(#aee0f4 45%,#8fbe6a 45%);
-  box-shadow:0 8px 20px #0002;
-}
-
-.sun{
-  position:absolute;
-  right:12%;
-  top:8%;
-  width:65px;
-  height:65px;
-  border-radius:50%;
-  background:#f7cb4a;
-}
-
-.cloud{
-  position:absolute;
-  width:65px;
-  height:20px;
-  background:white;
-  border-radius:30px;
-  opacity:.8;
-}
-
-.c1{
-  top:12%;
-  left:8%;
-}
-
-.c2{
-  top:20%;
-  right:25%;
-}
-
-.path{
-  position:absolute;
-  bottom:0;
-  left:37%;
-  width:26%;
-  height:60%;
-  background:#c99a63;
-  clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);
-}
-
-.flower{
-  position:absolute;
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:#ee8aa3;
-}
-
-/* CUCCIOLO */
-
-.dog{
-  position:absolute;
-  left:50%;
-  bottom:20%;
-  transform:translateX(-50%);
-  font-size:85px;
-  z-index:5;
-  animation:salta 2.5s infinite ease-in-out;
-}
-
-@keyframes salta{
-  50%{
-    transform:translateX(-50%) translateY(-8px);
-  }
-}
-
-/* PALLINA */
-
-.ball{
-  position:absolute;
-  font-size:32px;
-  left:18%;
-  bottom:22%;
-  z-index:4;
-  display:none;
-}
-
-.ball.show{
-  display:block;
-}
-
-.ball.play{
-  animation:balla 2s ease-in-out;
-}
-
-@keyframes balla{
-  0%{
-    left:18%;
-    bottom:22%;
-  }
-
-  45%{
-    left:70%;
-    bottom:28%;
-  }
-
-  100%{
-    left:18%;
-    bottom:22%;
-  }
-}
-
-/* GIOCO */
-
-.dog.playing{
-  animation:corsa 2s ease-in-out;
-}
-
-@keyframes corsa{
-  0%{
-    left:50%;
-    transform:translateX(-50%);
-  }
-
-  45%{
-    left:72%;
-    transform:translateX(-50%) translateY(-10px);
-  }
-
-  100%{
-    left:50%;
-    transform:translateX(-50%);
-  }
-}
-
-/* PASSEGGIATA */
-
-.dog.walking{
-  animation:cammina 3s linear;
-}
-
-@keyframes cammina{
-  0%{
-    left:5%;
-    transform:translateX(-50%);
-  }
-
-  50%{
-    left:50%;
-    transform:translateX(-50%) translateY(-7px);
-  }
-
-  100%{
-    left:95%;
-    transform:translateX(-50%);
-  }
-}
-
-/* CUORI */
-
-.heart{
-  position:absolute;
-  font-size:25px;
-  z-index:10;
-  pointer-events:none;
-  animation:cuore 1.6s ease-out forwards;
-}
-
-@keyframes cuore{
-  0%{
-    opacity:1;
-    transform:translateY(0) scale(.7);
-  }
-
-  100%{
-    opacity:0;
-    transform:translateY(-120px) scale(1.4);
-  }
-}
-
-/* ZZZ */
-
-.zzz{
-  position:absolute;
-  left:58%;
-  bottom:48%;
-  font-size:24px;
-  z-index:10;
-  display:none;
-}
-
-.zzz.show{
-  display:block;
-  animation:zzz 1.5s infinite ease-in-out;
-}
-
-@keyframes zzz{
-  0%{
-    opacity:.3;
-    transform:translateY(5px);
-  }
-
-  50%{
-    opacity:1;
-    transform:translateY(-5px);
-  }
-
-  100%{
-    opacity:.3;
-    transform:translateY(-12px);
-  }
-}
-
-/* FUMETTO */
-
-.bubble{
-  position:absolute;
-  top:8%;
-  left:55%;
-  background:white;
-  padding:7px 12px;
-  border-radius:15px;
-  font-size:20px;
-  display:none;
-  box-shadow:0 3px 8px #0002;
-  z-index:20;
-}
-
-.bubble.show{
-  display:block;
-}
-
-/* MESSAGGIO */
-
-.msg{
-  text-align:center;
-  font-weight:bold;
-  color:#c4602f;
-  min-height:25px;
-  margin:13px 0;
-}
-
-/* STATISTICHE */
-
-.stats{
-  background:#fffdf6;
-  border:2px solid #ede2c9;
-  border-radius:16px;
-  padding:14px;
-}
-
-.row{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  margin:9px 0;
-}
-
-.icon{
-  width:22px;
-}
-
-.label{
-  width:75px;
-  font-weight:bold;
-  font-size:13px;
-}
-
-.track{
-  flex:1;
-  height:14px;
-  background:#f1e7d2;
-  border-radius:10px;
-  overflow:hidden;
-}
-
-.bar{
-  height:100%;
-  width:80%;
-  border-radius:10px;
-  background:#7cb86a;
-  transition:.4s;
-}
-
-/* PULSANTI */
-
-.actions{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  margin-top:12px;
-}
-
-button{
-  border:2px solid #ede2c9;
-  background:#fffdf6;
-  border-radius:14px;
-  padding:10px 4px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.15s;
-}
-
-button:active{
-  transform:scale(.94);
-}
-
-button:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.big{
-  font-size:20px;
-  display:block;
-}
-
-.affetto{
-  text-align:center;
-  color:#7c6a57;
-}
-
-.affetto b{
-  color:#c4602f;
-}
-
-.footer{
-  text-align:center;
-  font-size:11px;
-  color:#7c6a57;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamagotchi Cane - Briciola</title>
+    <style>
+        :root {
+            --bg-main: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .game-wrapper {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-bar {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dog-identity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dog-identity h1 {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .dog-identity h1:hover::after {
+            content: " ✏️";
+            font-size: 0.8rem;
+        }
+
+        .stage-badge {
+            background-color: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .time-display {
+            text-align: right;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .viewport-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background-color: #e3f2fd;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            border: 3px solid #cbd5e1;
+        }
+
+        /* Ambientazioni */
+        .scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            transition: opacity 0.5s;
+        }
+
+        .scene.active {
+            display: block;
+        }
+
+        .scene-salotto { background: linear-gradient(to bottom, #fde2e4 70%, #d8e2dc 70%); }
+        .scene-giardino { background: linear-gradient(to bottom, #bae6fd 60%, #86efac 60%); }
+        .scene-cucina { background: linear-gradient(to bottom, #fef3c7 65%, #cbd5e1 65%); }
+
+        /* Oggetti Interattivi / Dispetti */
+        .scene-obj {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+
+        .scene-obj:hover { transform: scale(1.08); }
+
+        #obj-cuscino { bottom: 40px; left: 40px; font-size: 45px; }
+        #obj-calzino { bottom: 35px; left: 140px; font-size: 35px; }
+        #obj-pianta { bottom: 120px; right: 50px; font-size: 55px; }
+        #obj-ciabatta { bottom: 30px; right: 160px; font-size: 35px; }
+        #obj-cavi { bottom: 40px; left: 220px; font-size: 35px; }
+        #obj-spazzatura { bottom: 80px; right: 40px; font-size: 50px; }
+        #obj-scatola { bottom: 45px; left: 50px; font-size: 45px; }
+        #obj-tappeto { bottom: 20px; right: 220px; font-size: 40px; }
+
+        /* Cane SVG e Posizionamento */
+        .dog-wrapper {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            transition: all 0.5s ease-in-out;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .dog-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Banner Dispetto */
+        .mischief-alert {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+            display: none;
+            z-index: 10;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); }
+            100% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            display: none;
+            z-index: 12;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: white transparent;
+        }
+
+        /* Sidebar e Statistiche */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-box {
+            background-color: var(--bg-main);
+            padding: 12px;
+            border-radius: var(--border-radius);
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-row {
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.4s ease, background-color 0.4s ease;
+        }
+
+        /* Controlli e Azioni */
+        .controls-panel {
+            padding: 0 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scene-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-scene {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .btn-scene.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        .btn-action span {
+            font-size: 1.2rem;
+        }
+
+        .btn-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-scold {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-scold:hover { background-color: #fca5a5; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-box h2 { margin-bottom: 10px; }
+        .modal-box p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 15px; }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-modal {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-confirm { background-color: var(--success); color: white; }
+        .btn-cancel { background-color: #cbd5e1; color: var(--text-dark); }
+
+        /* Animazioni Cane */
+        .anim-idle { animation: idle 2s infinite ease-in-out; }
+        .anim-sleep { transform: translateX(-50%) rotate(-90deg) translateY(30px) !important; }
+        .anim-walk { animation: walk 0.6s infinite alternate; }
+        .anim-happy { animation: bounce 0.4s infinite alternate; }
+        .anim-sick { opacity: 0.7; filter: grayscale(40%); }
+
+        @keyframes idle {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        @keyframes walk {
+            0% { transform: translateX(-50%) rotate(-3deg); }
+            100% { transform: translateX(-50%) rotate(3deg); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-50%) translateY(-20px); }
+        }
+
+        /* Registro Eventi */
+        .event-log {
+            height: 100px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 4px;
+        }
+
+        .log-item {
+            padding: 3px 6px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary);
+        }
+        .log-item.warn { border-left-color: var(--accent); }
+        .log-item.good { border-left-color: var(--success); }
+
+    </style>
 </head>
-
 <body>
 
-<div class="game">
+<div class="game-wrapper">
+    <!-- Header -->
+    <div class="header-bar">
+        <div class="dog-identity">
+            <h1 id="dog-name-display" onclick="renameDog()">Briciola</h1>
+            <span id="stage-badge" class="stage-badge">Cucciolo</span>
+        </div>
+        <div class="time-display">
+            <div>Età: <strong id="age-display">0 anni (0d)</strong></div>
+            <div id="clock-display" style="font-size: 0.75rem; opacity: 0.8;">Giorno 1 - 08:00</div>
+        </div>
+    </div>
 
-<h1>🐾 Vita da Cucciolo</h1>
+    <!-- Main Content Layout -->
+    <div class="main-layout">
+        <!-- Area Visiva Principale -->
+        <div class="viewport-container">
+            <div id="mischief-alert" class="mischief-alert">⚠️ Dispetto in corso!</div>
 
-<div class="subtitle">
-Prenditi cura del tuo cucciolo nella sua piccola campagna 🌼
+            <!-- Scene -->
+            <div id="scene-salotto" class="scene scene-salotto active">
+                <div id="obj-cuscino" class="scene-obj" onclick="interactObject('cuscino')">🛋️</div>
+                <div id="obj-calzino" class="scene-obj" onclick="interactObject('calzino')">🧦</div>
+            </div>
+            
+            <div id="scene-giardino" class="scene scene-giardino">
+                <div id="obj-pianta" class="scene-obj" onclick="interactObject('pianta')">🪴</div>
+                <div id="obj-ciabatta" class="scene-obj" onclick="interactObject('ciabatta')">🥿</div>
+                <div id="obj-tappeto" class="scene-obj" onclick="interactObject('tappeto')">🧹</div>
+            </div>
+
+            <div id="scene-cucina" class="scene scene-cucina">
+                <div id="obj-cavi" class="scene-obj" onclick="interactObject('cavi')">🔌</div>
+                <div id="obj-spazzatura" class="scene-obj" onclick="interactObject('spazzatura')">🗑️</div>
+                <div id="obj-scatola" class="scene-obj" onclick="interactObject('scatola')">📦</div>
+            </div>
+
+            <!-- Cane SVG -->
+            <div id="dog-wrapper" class="dog-wrapper anim-idle" onclick="petDog()">
+                <div id="speech-bubble" class="speech-bubble">Bau!</div>
+                <svg class="dog-svg" viewBox="0 0 100 100">
+                    <!-- Orecchie -->
+                    <path id="ear-left" d="M 25 30 Q 10 35 15 55 Q 25 50 30 38" fill="#8B4513" />
+                    <path id="ear-right" d="M 75 30 Q 90 35 85 55 Q 75 50 70 38" fill="#8B4513" />
+                    
+                    <!-- Corpo -->
+                    <ellipse cx="50" cy="65" rx="25" ry="20" fill="#D2B48C" />
+                    
+                    <!-- Testa -->
+                    <circle cx="50" cy="40" r="22" fill="#D2B48C" />
+                    
+                    <!-- Muto/Canna Nasale -->
+                    <ellipse cx="50" cy="46" rx="10" ry="7" fill="#F5DEB3" />
+                    <polygon points="46,42 54,42 50,47" fill="#2C3E50" />
+                    
+                    <!-- Occhi -->
+                    <circle id="eye-left" cx="40" cy="36" r="3" fill="#2C3E50" />
+                    <circle id="eye-right" cx="60" cy="36" r="3" fill="#2C3E50" />
+                    
+                    <!-- Occhi Chiusi (Nascosti per default) -->
+                    <path id="eyes-closed" d="M 37 36 Q 40 39 43 36 M 57 36 Q 60 39 63 36" stroke="#2C3E50" stroke-width="2" fill="none" style="display:none;" />
+
+                    <!-- Lingua (Nascosta) -->
+                    <path id="dog-tongue" d="M 48 49 Q 50 56 52 49" fill="#FF6B6B" style="display:none;" />
+
+                    <!-- Zampe -->
+                    <ellipse cx="38" cy="82" rx="6" ry="4" fill="#8B4513" />
+                    <ellipse cx="62" cy="82" rx="6" ry="4" fill="#8B4513" />
+
+                    <!-- Coda -->
+                    <path id="dog-tail" d="M 72 65 Q 85 60 80 50" stroke="#8B4513" stroke-width="5" stroke-linecap="round" fill="none" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Sidebar Statistiche -->
+        <div class="sidebar">
+            <div class="panel-box">
+                <div class="panel-title">Stato Fisico</div>
+                
+                <div class="stat-row">
+                    <div class="stat-label"><span>Fame</span><span id="val-hunger">100%</span></div>
+                    <div class="bar-container"><div id="bar-hunger" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Energia</span><span id="val-energy">100%</span></div>
+                    <div class="bar-container"><div id="bar-energy" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Igiene</span><span id="val-hygiene">100%</span></div>
+                    <div class="bar-container"><div id="bar-hygiene" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Vescica</span><span id="val-bladder">100%</span></div>
+                    <div class="bar-container"><div id="bar-bladder" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-title">Mente e Salute</div>
+                
+                <div class="stat-row">
+                    <div class="stat-label"><span>Felicità</span><span id="val-happiness">100%</span></div>
+                    <div class="bar-container"><div id="bar-happiness" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Addestramento</span><span id="val-training">0%</span></div>
+                    <div class="bar-container"><div id="bar-training" class="bar-fill" style="width: 0%; background-color: var(--primary);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Salute</span><span id="val-health">100%</span></div>
+                    <div class="bar-container"><div id="bar-health" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-title">Diario</div>
+                <div id="event-log" class="event-log">
+                    <div class="log-item good">Benvenuto nel gioco! Abbi cura del tuo cane.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controlli Inferiori -->
+    <div class="controls-panel">
+        <div class="scene-selector">
+            <button id="btn-scene-salotto" class="btn-scene active" onclick="switchScene('salotto')">🛋️ Salotto</button>
+            <button id="btn-scene-giardino" class="btn-scene" onclick="switchScene('giardino')">🌳 Giardino</button>
+            <button id="btn-scene-cucina" class="btn-scene" onclick="switchScene('cucina')">🍽️ Cucina</button>
+        </div>
+
+        <div class="actions-grid">
+            <button class="btn-action" onclick="feedDog()"><span>🍖</span>Cibo</button>
+            <button class="btn-action" onclick="walkDog()"><span>🦮</span>Passeggiata</button>
+            <button class="btn-action" onclick="playDog()"><span>🎾</span>Gioca</button>
+            <button class="btn-action" onclick="washDog()"><span>🛁</span>Lavaggio</button>
+            <button class="btn-action" onclick="sleepDog()"><span>💤</span>Nanna</button>
+            <button class="btn-action" onclick="vetDog()"><span>🩺</span>Veterinario</button>
+            <button class="btn-action btn-scold" onclick="scoldDog()"><span>⚠️</span>Sgrida</button>
+        </div>
+    </div>
 </div>
 
-<div class="name">
-Il suo nome è
-<input id="nome" value="Briciola" maxlength="14">
-</div>
-
-<div class="scene" id="scene">
-
-<div class="sun"></div>
-
-<div class="cloud c1"></div>
-<div class="cloud c2"></div>
-
-<div class="path"></div>
-
-<div class="flower" style="left:8%;bottom:12%"></div>
-<div class="flower" style="left:15%;bottom:18%"></div>
-<div class="flower" style="right:12%;bottom:15%"></div>
-<div class="flower" style="right:20%;bottom:25%"></div>
-
-<div class="bubble" id="bubble"></div>
-
-<div class="ball" id="ball">🎾</div>
-
-<div class="zzz" id="zzz">💤</div>
-
-<div class="dog" id="dog">🐶</div>
-
-</div>
-
-<div class="msg" id="msg">
-Ciao! Sono felice di vederti! 🐶💕
-</div>
-
-<div class="stats">
-
-<div class="row">
-<div class="icon">🍖</div>
-<div class="label">Fame</div>
-<div class="track">
-<div class="bar" id="fame"></div>
-</div>
-</div>
-
-<div class="row">
-<div class="icon">⚡</div>
-<div class="label">Energia</div>
-<div class="track">
-<div class="bar" id="energia"></div>
-</div>
-</div>
-
-<div class="row">
-<div class="icon">💕</div>
-<div class="label">Felicità</div>
-<div class="track">
-<div class="bar" id="felicita"></div>
-</div>
-</div>
-
-<div class="row">
-<div class="icon">🧼</div>
-<div class="label">Pulizia</div>
-<div class="track">
-<div class="bar" id="pulizia"></div>
-</div>
-</div>
-
-</div>
-
-<div class="actions">
-
-<button onclick="nutri()">
-<span class="big">🍖</span>
-Nutri
-</button>
-
-<button onclick="gioca()">
-<span class="big">🎾</span>
-Gioca
-</button>
-
-<button onclick="coccola()">
-<span class="big">💕</span>
-Coccola
-</button>
-
-<button onclick="bagno()">
-<span class="big">🛁</span>
-Bagnetto
-</button>
-
-<button onclick="passeggia()">
-<span class="big">🌼</span>
-Passeggia
-</button>
-
-<button onclick="dormi()">
-<span class="big">💤</span>
-Dormi
-</button>
-
-</div>
-
-<p class="affetto">
-Affetto guadagnato:
-<b id="affetto">0</b> 💗
-</p>
-
-<p class="footer">
-Le statistiche calano lentamente col tempo: torna a trovare il tuo cucciolo! 🐾
-</p>
-
-</div>
-
-<script>
-
-/* =========================
-   STATO DEL CUCCIOLO
-========================= */
-
-let stato={
-  fame:80,
-  energia:80,
-  felicita:80,
-  pulizia:80,
-  affetto:0,
-  dorme:false,
-  azione:false,
-  ultimaVisita:Date.now()
-};
-
-
-/* =========================
-   SALVATAGGIO
-========================= */
-
-const SALVATAGGIO="vitaDaCucciolo";
-
-
-function salva(){
-
-  stato.ultimaVisita=Date.now();
-
-  localStorage.setItem(
-    SALVATAGGIO,
-    JSON.stringify({
-      fame:stato.fame,
-      energia:stato.energia,
-      felicita:stato.felicita,
-      pulizia:stato.pulizia,
-      affetto:stato.affetto,
-      ultimaVisita:stato.ultimaVisita
-    })
-  );
-
-  localStorage.setItem(
-    "vitaDaCuccioloNome",
-    document.getElementById("nome").value
-  );
-}
-
-
-/* =========================
-   CARICAMENTO
-========================= */
-
-function carica(){
-
-  let dati=localStorage.getItem(SALVATAGGIO);
-
-  let nomeSalvato=localStorage.getItem("vitaDaCuccioloNome");
-
-  if(nomeSalvato!==null){
-    document.getElementById("nome").value=nomeSalvato;
-  }
-
-  if(!dati){
-    return;
-  }
-
-  try{
-
-    let salvato=JSON.parse(dati);
-
-    stato.fame=salvato.fame;
-    stato.energia=salvato.energia;
-    stato.felicita=salvato.felicita;
-    stato.pulizia=salvato.pulizia;
-    stato.affetto=salvato.affetto;
-
-    let ultima=salvato.ultimaVisita || Date.now();
-
-    let passato=Date.now()-ultima;
-
-    /* 
-       TEMPO OFFLINE:
-       i bisogni scendono lentamente.
-       
-       Fame:       1 punto ogni 2 ore
-       Energia:    1 punto ogni 3 ore
-       Felicità:   1 punto ogni 3 ore
-       Pulizia:    1 punto ogni 4 ore
-    */
-
-    let ore=passato/(1000*60*60);
-
-    stato.fame=limite(
-      stato.fame-Math.floor(ore/2)
-    );
-
-    stato.energia=limite(
-      stato.energia-Math.floor(ore/3)
-    );
-
-    stato.felicita=limite(
-      stato.felicita-Math.floor(ore/3)
-    );
-
-    stato.pulizia=limite(
-      stato.pulizia-Math.floor(ore/4)
-    );
-
-    stato.dorme=false;
-    stato.azione=false;
-
-    /* Messaggio di ritorno */
-
-    if(ore>=1){
-
-      let oreIntere=Math.floor(ore);
-
-      if(oreIntere===1){
-        messaggio(
-          nome()+"! Sei tornata! Mi sei mancata! 🐶💕"
-        );
-      }else if(oreIntere<24){
-        messaggio(
-          nome()+" ti aspettava! 🐶❤️"
-        );
-      }else{
-        let giorni=Math.floor(ore/24);
-
-        messaggio(
-          nome()+"! Finalmente sei tornata dopo "+giorni+" giorno/i! 🥺🐾"
-        );
-      }
-
-    }
-
-  }catch(e){
-
-    console.log("Errore nel caricamento del salvataggio.");
-
-  }
-
-}
-
-
-/* =========================
-   FUNZIONI BASE
-========================= */
-
-function limite(x){
-  return Math.max(0,Math.min(100,x));
-}
-
-
-function nome(){
-  return document.getElementById("nome").value.trim() || "Il cucciolo";
-}
-
-
-function aggiorna(){
-
-  document.getElementById("fame").style.width=stato.fame+"%";
-
-  document.getElementById("energia").style.width=stato.energia+"%";
-
-  document.getElementById("felicita").style.width=stato.felicita+"%";
-
-  document.getElementById("pulizia").style.width=stato.pulizia+"%";
-
-  document.getElementById("affetto").textContent=stato.affetto;
-
-}
-
-
-function messaggio(testo){
-  document.getElementById("msg").textContent=testo;
-}
-
-
-/* =========================
-   PAPPA
-========================= */
-
-function nutri(){
-
-  if(stato.dorme){
-    messaggio(nome()+" sta dormendo. 💤");
-    return;
-  }
-
-  if(stato.azione)return;
-
-  stato.fame=limite(stato.fame+28);
-
-  stato.pulizia=limite(stato.pulizia-4);
-
-  stato.felicita=limite(stato.felicita+5);
-
-  stato.affetto+=2;
-
-  messaggio(
-    nome()+" scodinzola felice per la pappa! 🍖"
-  );
-
-  aggiorna();
-  salva();
-}
-
-
-/* =========================
-   GIOCA
-========================= */
-
-function gioca(){
-
-  if(stato.dorme){
-    messaggio(nome()+" sta dormendo. 💤");
-    return;
-  }
-
-  if(stato.azione)return;
-
-  if(stato.energia<12){
-
-    messaggio(
-      nome()+" è troppo stanco per giocare. 😴"
-    );
-
-    return;
-  }
-
-  stato.azione=true;
-
-  let dog=document.getElementById("dog");
-
-  let ball=document.getElementById("ball");
-
-  dog.classList.remove("walking");
-
-  dog.classList.add("playing");
-
-  ball.classList.remove("show");
-
-  ball.classList.remove("play");
-
-  void ball.offsetWidth;
-
-  ball.classList.add("show");
-
-  ball.classList.add("play");
-
-  stato.felicita=limite(
-    stato.felicita+22
-  );
-
-  stato.energia=limite(
-    stato.energia-14
-  );
-
-  stato.fame=limite(
-    stato.fame-6
-  );
-
-  stato.affetto+=3;
-
-  messaggio(
-    nome()+" corre dietro alla pallina! 🎾🐶"
-  );
-
-  aggiorna();
-  salva();
-
-  setTimeout(function(){
-
-    dog.classList.remove("playing");
-
-    ball.classList.remove("show");
-
-    ball.classList.remove("play");
-
-    stato.azione=false;
-
-    messaggio(
-      nome()+" è tornato tutto felice! ❤️🐾"
-    );
-
-    salva();
-
-  },2100);
-}
-
-
-/* =========================
-   COCCOLE
-========================= */
-
-function coccola(){
-
-  if(stato.dorme){
-
-    messaggio(
-      nome()+" dorme beato. 💤"
-    );
-
-    return;
-  }
-
-  if(stato.azione)return;
-
-  stato.felicita=limite(
-    stato.felicita+16
-  );
-
-  stato.affetto+=3;
-
-  messaggio(
-    nome()+" adora le coccole! ❤️🥰"
-  );
-
-  creaCuori();
-
-  aggiorna();
-  salva();
-}
-
-
-/* =========================
-   CUORICINI
-========================= */
-
-function creaCuori(){
-
-  let scene=document.getElementById("scene");
-
-  for(let i=0;i<7;i++){
-
-    let cuore=document.createElement("div");
-
-    cuore.className="heart";
-
-    cuore.textContent=[
-      "❤️",
-      "💕",
-      "💗",
-      "💖"
-    ][Math.floor(Math.random()*4)];
-
-    cuore.style.left=
-      (43+Math.random()*18)+"%";
-
-    cuore.style.bottom=
-      (25+Math.random()*15)+"%";
-
-    scene.appendChild(cuore);
-
-    setTimeout(function(){
-
-      cuore.remove();
-
-    },1600);
-
-  }
-}
-
-
-/* =========================
-   BAGNETTO
-========================= */
-
-function bagno(){
-
-  if(stato.dorme){
-
-    messaggio(
-      nome()+" sta dormendo. 💤"
-    );
-
-    return;
-  }
-
-  if(stato.azione)return;
-
-  stato.pulizia=limite(
-    stato.pulizia+30
-  );
-
-  stato.felicita=limite(
-    stato.felicita-4
-  );
-
-  stato.affetto+=1;
-
-  messaggio(
-    nome()+" è pulito e profuma di buono! 🛁✨"
-  );
-
-  aggiorna();
-  salva();
-}
-
-
-/* =========================
-   PASSEGGIATA
-========================= */
-
-function passeggia(){
-
-  if(stato.dorme){
-
-    messaggio(
-      nome()+" sta dormendo. 💤"
-    );
-
-    return;
-  }
-
-  if(stato.azione)return;
-
-  if(stato.energia<18){
-
-    messaggio(
-      nome()+" è troppo stanco per passeggiare. 😴"
-    );
-
-    return;
-  }
-
-  stato.azione=true;
-
-  let dog=document.getElementById("dog");
-
-  dog.classList.remove("playing");
-
-  void dog.offsetWidth;
-
-  dog.classList.add("walking");
-
-  stato.felicita=limite(
-    stato.felicita+18
-  );
-
-  stato.energia=limite(
-    stato.energia-16
-  );
-
-  stato.pulizia=limite(
-    stato.pulizia-8
-  );
-
-  stato.affetto+=4;
-
-  messaggio(
-    nome()+" passeggia felice tra i campi! 🌼🐾"
-  );
-
-  aggiorna();
-  salva();
-
-  setTimeout(function(){
-
-    dog.classList.remove("walking");
-
-    messaggio(
-      nome()+" è tornato dalla passeggiata! 🐶🌼"
-    );
-
-    stato.azione=false;
-
-    salva();
-
-  },3000);
-}
-
-
-/* =========================
-   DORMI
-========================= */
-
-function dormi(){
-
-  if(stato.azione)return;
-
-  let zzz=document.getElementById("zzz");
-
-  if(stato.dorme){
-
-    stato.dorme=false;
-
-    zzz.classList.remove("show");
-
-    messaggio(
-      nome()+" si è svegliato tutto arzillo! ☀️🐶"
-    );
-
-    aggiorna();
-    salva();
-
-    return;
-  }
-
-  stato.dorme=true;
-
-  zzz.classList.add("show");
-
-  messaggio(
-    nome()+" si acciambella e si addormenta. 💤"
-  );
-
-  aggiorna();
-  salva();
-
-  setTimeout(function(){
-
-    if(!stato.dorme)return;
-
-    stato.energia=limite(
-      stato.energia+45
-    );
-
-    stato.fame=limite(
-      stato.fame-5
-    );
-
-    stato.dorme=false;
-
-    zzz.classList.remove("show");
-
-    messaggio(
-      nome()+" si è svegliato pieno di energia! ⚡🐶"
-    );
-
-    aggiorna();
-    salva();
-
-  },5000);
-}
-
-
-/* =========================
-   IL TEMPO PASSA
-========================= */
-
-setInterval(function(){
-
-  if(stato.dorme){
-
-    stato.fame=limite(
-      stato.fame-1
-    );
-
-  }else{
-
-    stato.fame=limite(
-      stato.fame-3
-    );
-
-    stato.energia=limite(
-      stato.energia-2
-    );
-
-    stato.felicita=limite(
-      stato.felicita-2
-    );
-
-    stato.pulizia=limite(
-      stato.pulizia-1
-    );
-
-  }
-
-  aggiorna();
-  salva();
-
-},4000);
-
-
-/* =========================
-   SALVA QUANDO SI ESCE
-========================= */
-
-window.addEventListener("beforeunload",function(){
-
-  salva();
-
-});
-
-
-/* =========================
-   SALVA QUANDO LA PAGINA
-   VA IN BACKGROUND
-========================= */
-
-document.addEventListener(
-  "visibilitychange",
-  function(){
-
-    if(document.visibilityState==="hidden"){
-
-      salva();
-
-    }
-
-  }
-);
-
-
-/* =========================
-   NOME
-========================= */
-
-document.getElementById("nome")
-.addEventListener("input",function(){
-
-  salva();
-
-});
-
-
-/* =========================
-   AVVIO
-========================= */
-
-carica();
-
-aggiorna();
-
-
-</script>
-
-</body>
-  </html>
+<!-- Modal Personalizzato -->
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-box">
+        <h2 id="modal-title">Titolo</h2>
+        <p id="modal-desc">Descrizione del messaggio del modal.</p>
+        <div class="modal-buttons">
+            
