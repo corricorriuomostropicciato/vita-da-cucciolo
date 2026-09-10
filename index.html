@@ -582,4 +582,502 @@
         <h2 id="modal-title">Titolo</h2>
         <p id="modal-desc">Descrizione del messaggio del modal.</p>
         <div class="modal-buttons">
+            <button id="btn-modal-confirm" class="btn-modal btn-confirm" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ===================================================
+       CONFIGURAZIONE E STATO DEL GIOCO
+       =================================================== */
+    const GAME_CONFIG = {
+        tickRateMs: 1000,           // 1 secondo reale = 1 ciclo di gioco
+        minutesPerTick: 10,         // 1 secondo reale = 10 minuti di gioco
+        saveKey: 'tamagotchi_dog_save_v1'
+    };
+
+    let gameState = {
+        dogName: "Briciola",
+        ageDays: 0,
+        dogAgeSeconds: 0,           // Contatore indipendente in secondi reali per l'età biologica
+        gameMinutes: 480,           // Inizia alle 08:00 (8 * 60)
+        gameDays: 1,
+        
+        // Statistiche principali (0 - 100)
+        hunger: 100,
+        energy: 100,
+        hygiene: 100,
+        bladder: 100,
+        happiness: 100,
+        training: 0,
+        health: 100,
+
+        // Stati Comportamentali
+        isSleeping: false,
+        isSick: false,
+        isMischiefActive: false,
+        activeMischiefObj: null,
+        lastMischiefTime: 0,
+        
+        currentScene: 'salotto'
+    };
+
+    let gameLoopInterval = null;
+
+    /* ===================================================
+       SISTEMA DI SALVATAGGIO / CARICAMENTO (LOCALSTORAGE)
+       =================================================== */
+    function saveGame() {
+        try {
+            localStorage.setItem(GAME_CONFIG.saveKey, JSON.stringify(gameState));
+        } catch (e) {
+            console.error("Errore nel salvataggio:", e);
+        }
+    }
+
+    function loadGame() {
+        try {
+            const savedData = localStorage.getItem(GAME_CONFIG.saveKey);
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                gameState = { ...gameState, ...parsed };
+            }
+        } catch (e) {
+            console.error("Errore nel caricamento:", e);
+        }
+    }
+
+    /* ===================================================
+       SISTEMA DI INVECCHIAMENTO E STADI DI VITA
+       =================================================== */
+    function getAgeYears() {
+        // 1 giorno biologico = 600 secondi reali (10 min). 1 anno = 365 giorni biologici.
+        const totalDays = gameState.dogAgeSeconds / 600;
+        return Math.floor(totalDays / 365);
+    }
+
+    function getAgeStage() {
+        const years = getAgeYears();
+        if (years < 1) return { name: "Cucciolo", scale: 0.7, speed: 1.2 };
+        if (years < 3) return { name: "Giovane", scale: 0.9, speed: 1.0 };
+        if (years < 8) return { name: "Adulto", scale: 1.0, speed: 1.0 };
+        if (years < 12) return { name: "Anziano", scale: 0.95, speed: 0.8 };
+        return { name: "Vecchiaia Avanzata", scale: 0.9, speed: 0.6 };
+    }
+
+    function updateAgeAndStage() {
+        const stage = getAgeStage();
+        const years = getAgeYears();
+        const totalDays = Math.floor(gameState.dogAgeSeconds / 600);
+        const daysInYear = totalDays % 365;
+
+        document.getElementById('stage-badge').innerText = stage.name;
+        document.getElementById('age-display').innerText = `${years} anni (${daysInYear}d)`;
+
+        // Adatta la scala visiva del cane in base allo stadio di crescita
+        const dogWrapper = document.getElementById('dog-wrapper');
+        dogWrapper.style.transform = `translateX(-50%) scale(${stage.scale})`;
+
+        // Effetto grafico per cane anziano / vecchiaia avanzata
+        if (years >= 8) {
+            dogWrapper.style.filter = "sepia(20%) contrast(90%)";
+        } else if (!gameState.isSick) {
+            dogWrapper.style.filter = "none";
+        }
+    }
+
+    /* ===================================================
+       LOOP DI GIOCO PRINCIPALE (gameLoop)
+       =================================================== */
+    function gameLoop() {
+        if (gameState.health <= 0) {
+            gameOver();
+            return;
+        }
+
+        // Incremento Tempo Orologio di Gioco
+        gameState.gameMinutes += GAME_CONFIG.minutesPerTick;
+        if (gameState.gameMinutes >= 1440) { // 24 ore
+            gameState.gameMinutes = 0;
+            gameState.gameDays++;
+        }
+
+        // Incremento Contatore Età Biologica (1 secondo reale = 1 unità)
+        gameState.dogAgeSeconds++;
+        gameState.ageDays = Math.floor(gameState.dogAgeSeconds / 600);
+
+        const stage = getAgeStage();
+
+        // 1. Decadimento Parametri in base allo stato e all'età
+        if (gameState.isSleeping) {
+            gameState.energy = Math.min(100, gameState.energy + 4);
+            gameState.hunger -= 0.2;
+            gameState.bladder -= 0.3;
+            if (gameState.energy >= 100) {
+                wakeUp();
+            }
+        } else {
+            // Un cane anziano consuma energia più velocemente e si stanca prima
+            const energyLoss = (stage.name === "Vecchiaia Avanzata" || stage.name === "Anziano") ? 0.8 : 0.5;
+            
+            gameState.hunger = Math.max(0, gameState.hunger - 0.4);
+            gameState.energy = Math.max(0, gameState.energy - energyLoss);
+            gameState.hygiene = Math.max(0, gameState.hygiene - 0.2);
+            gameState.bladder = Math.max(0, gameState.bladder - 0.5);
+
+            // La felicità scende se i bisogni primari sono bassi
+            if (gameState.hunger < 30 || gameState.energy < 20 || gameState.bladder < 20) {
+                gameState.happiness = Math.max(0, gameState.happiness - 1);
+            }
+        }
+
+        // 2. Gestione Bisogni Estremi
+        if (gameState.bladder <= 0) {
+            triggerAccident();
+        }
+
+        // 3. Sistema di Malattia
+        if ((gameState.hygiene < 20 || gameState.hunger < 15 || gameState.happiness < 15) && !gameState.isSick) {
+            if (Math.random() < 0.15) {
+                contractIllness();
+            }
+        }
+
+        // Impatto Malattia
+        if (gameState.isSick) {
+            gameState.health = Math.max(0, gameState.health - 1.5);
+            gameState.happiness = Math.max(0, gameState.happiness - 1);
+        } else if (gameState.hunger > 50 && gameState.hygiene > 50 && gameState.energy > 30) {
+            // Recupero naturale salute
+            gameState.health = Math.min(100, gameState.health + 0.5);
+        }
+
+        // Impatto Vecchiaia Avanzata sulla Salute Globale
+        if (stage.name === "Vecchiaia Avanzata") {
+            gameState.health = Math.max(0, gameState.health - 0.1);
+        }
+
+        // 4. Generazione Dispetti (Mischief)
+        if (!gameState.isSleeping && !gameState.isMischiefActive && gameState.energy > 30) {
+            const mischiefChance = (100 - gameState.training) * 0.002 * (stage.name === "Cucciolo" ? 1.5 : 0.7);
+            if (Math.random() < mischiefChance) {
+                triggerMischief();
+            }
+        }
+
+        // Aggiornamento Interfaccia Utente
+        updateUI();
+
+        // Salvataggio automatico dello stato a ogni tick
+        saveGame();
+    }
+
+    /* ===================================================
+       DISPETTI E COMPORTAMENTI
+       =================================================== */
+    function triggerMischief() {
+        const objectsByScene = {
+            salotto: ['cuscino', 'calzino'],
+            giardino: ['pianta', 'ciabatta', 'tappeto'],
+            cucina: ['cavi', 'spazzatura', 'scatola']
+        };
+
+        const availableObjs = objectsByScene[gameState.currentScene];
+        if (!availableObjs || availableObjs.length === 0) return;
+
+        const randomObj = availableObjs[Math.floor(Math.random() * availableObjs.length)];
+        gameState.isMischiefActive = true;
+        gameState.activeMischiefObj = randomObj;
+
+        document.getElementById('mischief-alert').style.display = 'block';
+        showSpeech("Grrr! 😈");
+        logEvent(`${gameState.dogName} sta facendo un dispetto! Sgridalo o fermalo!`, "warn");
+
+        const objElem = document.getElementById(`obj-${randomObj}`);
+        if (objElem) {
+            objElem.style.transform = "scale(1.3) rotate(15deg)";
+        }
+    }
+
+    function scoldDog() {
+        if (!gameState.isMischiefActive) {
+            showSpeech("❓");
+            logEvent(`Hai sgridato ${gameState.dogName} senza motivo. Si è rattristato.`, "warn");
+            gameState.happiness = Math.max(0, gameState.happiness - 15);
+            updateUI();
+            return;
+        }
+
+        gameState.isMischiefActive = false;
+        document.getElementById('mischief-alert').style.display = 'none';
+        
+        if (gameState.activeMischiefObj) {
+            const objElem = document.getElementById(`obj-${gameState.activeMischiefObj}`);
+            if (objElem) objElem.style.transform = "none";
+        }
+
+        gameState.training = Math.min(100, gameState.training + 12);
+        gameState.happiness = Math.max(0, gameState.happiness - 5);
+        showSpeech("Ouch... 🥺");
+        logEvent(`Hai sgridato ${gameState.dogName}. Ha imparato la lezione! (+Addestramento)`, "good");
+        
+        gameState.activeMischiefObj = null;
+        updateUI();
+    }
+
+    function interactObject(objName) {
+        if (gameState.isMischiefActive && gameState.activeMischiefObj === objName) {
+            showSpeech("Bau! 🐾");
+            logEvent(`Hai distratto ${gameState.dogName} dal dispetto.`, "good");
+            gameState.isMischiefActive = false;
+            document.getElementById('mischief-alert').style.display = 'none';
+            
+            const objElem = document.getElementById(`obj-${objName}`);
+            if (objElem) objElem.style.transform = "none";
+            gameState.activeMischiefObj = null;
+        } else {
+            showSpeech("Woof?");
+        }
+    }
+
+    function triggerAccident() {
+        gameState.bladder = 100;
+        gameState.hygiene = Math.max(0, gameState.hygiene - 40);
+        gameState.happiness = Math.max(0, gameState.happiness - 10);
+        showSpeech("Oops... 💩");
+        logEvent(`${gameState.dogName} non ha trattenuto la pipì! Puliscilo subito.`, "warn");
+    }
+
+    /* ===================================================
+       AZIONI DI CURA E INTERAZIONE
+       =================================================== */
+    function feedDog() {
+        if (gameState.isSleeping) return;
+        if (gameState.hunger >= 95) {
+            showSpeech("Full! 🙅‍♂️");
+            return;
+        }
+        gameState.hunger = Math.min(100, gameState.hunger + 35);
+        gameState.bladder = Math.max(0, gameState.bladder - 15);
+        showSpeech("Yummy! 🍖");
+        logEvent(`Hai dato da mangiare a ${gameState.dogName}.`);
+        animateDog('anim-happy');
+        updateUI();
+    }
+
+    function walkDog() {
+        if (gameState.isSleeping) return;
+        if (gameState.energy < 20) {
+            showSpeech("Too tired... 😴");
+            return;
+        }
+        gameState.energy = Math.max(0, gameState.energy - 25);
+        gameState.bladder = 100;
+        gameState.happiness = Math.min(100, gameState.happiness + 25);
+        gameState.hygiene = Math.max(0, gameState.hygiene - 15);
+        showSpeech("Yippee! 🦮");
+        logEvent(`Bella passeggiata con ${gameState.dogName}! Vescica svuotata.`);
+        animateDog('anim-walk');
+        updateUI();
+    }
+
+    function playDog() {
+        if (gameState.isSleeping) return;
+        if (gameState.energy < 15) {
+            showSpeech("No energy... 💤");
+            return;
+        }
+        gameState.energy = Math.max(0, gameState.energy - 20);
+        gameState.happiness = Math.min(100, gameState.happiness + 20);
+        gameState.hunger = Math.max(0, gameState.hunger - 10);
+        showSpeech("Fun! 🎾");
+        logEvent(`Hai giocato con ${gameState.dogName}.`);
+        animateDog('anim-happy');
+        updateUI();
+    }
+
+    function washDog() {
+        if (gameState.isSleeping) return;
+        gameState.hygiene = 100;
+        gameState.happiness = Math.max(0, gameState.happiness - 5);
+        showSpeech("Splish Splash! 🛁");
+        logEvent(`Hai lavato e spazzolato ${gameState.dogName}. Ora è pulitissimo!`, "good");
+        updateUI();
+    }
+
+    function sleepDog() {
+        if (gameState.isSleeping) {
+            wakeUp();
+        } else {
+            gameState.isSleeping = true;
+            showSpeech("Zzz...");
+            logEvent(`${gameState.dogName} sta dormendo.`);
+            document.getElementById('dog-wrapper').classList.add('anim-sleep');
+            document.getElementById('eye-left').style.display = 'none';
+            document.getElementById('eye-right').style.display = 'none';
+            document.getElementById('eyes-closed').style.display = 'block';
+            updateUI();
+        }
+    }
+
+    function wakeUp() {
+        gameState.isSleeping = false;
+        showSpeech("Awwwn! ☀️");
+        logEvent(`${gameState.dogName} si è svegliato!`);
+        document.getElementById('dog-wrapper').classList.remove('anim-sleep');
+        document.getElementById('eye-left').style.display = 'block';
+        document.getElementById('eye-right').style.display = 'block';
+        document.getElementById('eyes-closed').style.display = 'none';
+        updateUI();
+    }
+
+    function vetDog() {
+        if (!gameState.isSick && gameState.health > 80) {
+            showSpeech("Healthy! 🩺");
+            logEvent(`Il veterinario dice che ${gameState.dogName} sta benissimo.`);
+            return;
+        }
+        gameState.isSick = false;
+        gameState.health = 100;
+        showSpeech("Feel better! ❤️");
+        logEvent(`Il veterinario ha curato ${gameState.dogName}. Salute ripristinata!`, "good");
+        document.getElementById('dog-wrapper').classList.remove('anim-sick');
+        updateUI();
+    }
+
+    function contractIllness() {
+        gameState.isSick = true;
+        showSpeech("Cough... 🤒");
+        logEvent(`${gameState.dogName} si è ammalato! Portalo dal veterinario.`, "warn");
+        document.getElementById('dog-wrapper').classList.add('anim-sick');
+    }
+
+    function petDog() {
+        if (gameState.isSleeping) return;
+        gameState.happiness = Math.min(100, gameState.happiness + 5);
+        showSpeech("Purr... ❤️");
+        animateDog('anim-happy');
+        updateUI();
+    }
+
+    /* ===================================================
+       UTILITÀ INTERFACCIA ED EFFETTI VISIVI
+       =================================================== */
+    function switchScene(sceneName) {
+        gameState.currentScene = sceneName;
+        
+        document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.btn-scene').forEach(b => b.classList.remove('active'));
+
+        document.getElementById(`scene-${sceneName}`).classList.add('active');
+        document.getElementById(`btn-scene-${sceneName}`).classList.add('active');
+    }
+
+    function showSpeech(text) {
+        const bubble = document.getElementById('speech-bubble');
+        bubble.innerText = text;
+        bubble.style.display = 'block';
+        setTimeout(() => {
+            bubble.style.display = 'none';
+        }, 2500);
+    }
+
+    function animateDog(className) {
+        const wrapper = document.getElementById('dog-wrapper');
+        if (gameState.isSleeping) return;
+        
+        wrapper.classList.remove('anim-idle');
+        wrapper.classList.add(className);
+        
+        setTimeout(() => {
+            wrapper.classList.remove(className);
+            wrapper.classList.add('anim-idle');
+        }, 1200);
+    }
+
+    function renameDog() {
+        const newName = prompt("Scegli un nuovo nome per il tuo cane:", gameState.dogName);
+        if (newName && newName.trim() !== "") {
+            gameState.dogName = newName.trim();
+            document.getElementById('dog-name-display').innerText = gameState.dogName;
+            logEvent(`Hai rinominato il tuo cane in ${gameState.dogName}.`);
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('dog-name-display').innerText = gameState.dogName;
+
+        const hours = Math.floor(gameState.gameMinutes / 60).toString().padStart(2, '0');
+        const mins = (gameState.gameMinutes % 60).toString().padStart(2, '0');
+        document.getElementById('clock-display').innerText = `Giorno ${gameState.gameDays} - ${hours}:${mins}`;
+
+        updateAgeAndStage();
+
+        updateBar('hunger', gameState.hunger);
+        updateBar('energy', gameState.energy);
+        updateBar('hygiene', gameState.hygiene);
+        updateBar('bladder', gameState.bladder);
+        updateBar('happiness', gameState.happiness);
+        updateBar('training', gameState.training);
+        updateBar('health', gameState.health);
+    }
+
+    function updateBar(key, value) {
+        const bar = document.getElementById(`bar-${key}`);
+        const valTxt = document.getElementById(`val-${key}`);
+        if (!bar || !valTxt) return;
+
+        const rounded = Math.round(value);
+        bar.style.width = `${rounded}%`;
+        valTxt.innerText = `${rounded}%`;
+
+        if (key !== 'training') {
+            if (rounded > 60) bar.style.backgroundColor = 'var(--success)';
+            else if (rounded > 25) bar.style.backgroundColor = 'var(--warning)';
+            else bar.style.backgroundColor = 'var(--accent)';
+        }
+    }
+
+    function logEvent(msg, type = "normal") {
+        const logBox = document.getElementById('event-log');
+        const item = document.createElement('div');
+        item.className = `log-item ${type}`;
+        
+        const hours = Math.floor(gameState.gameMinutes / 60).toString().padStart(2, '0');
+        const mins = (gameState.gameMinutes % 60).toString().padStart(2, '0');
+        
+        item.innerText = `[${hours}:${mins}] ${msg}`;
+        logBox.insertBefore(item, logBox.firstChild);
+    }
+
+    function showModal(title, desc) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-desc').innerText = desc;
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').style.display = 'none';
+    }
+
+    function gameOver() {
+        clearInterval(gameLoopInterval);
+        showModal("Game Over", `${gameState.dogName} non ce l'ha fatta... Assicurati di prestare più attenzione ai suoi bisogni la prossima volta!`);
+    }
+
+    /* ===================================================
+       INIZIALIZZAZIONE GIOCO
+       =================================================== */
+    function initGame() {
+        loadGame(); // Carica i dati salvati da localStorage all'avvio
+        updateUI();
+        gameLoopInterval = setInterval(gameLoop, GAME_CONFIG.tickRateMs);
+    }
+
+    window.onload = initGame;
+
+</script>
+</body>
+</html>
             
