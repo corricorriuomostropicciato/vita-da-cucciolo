@@ -1,139 +1,1555 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vita da Cucciolo - Briciola</title>
-<style>
-:root{--bg-main:#f0f4f8;--card-bg:#fff;--primary:#3498db;--accent:#e74c3c;--success:#2ecc71;--warning:#f1c40f;--text-dark:#2c3e50;--text-light:#7f8c8d;--border-radius:12px}
-*{box-sizing:border-box;margin:0;padding:0;user-select:none}
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg-main);color:var(--text-dark);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:15px}
-.game-wrapper{background:#fff;width:100%;max-width:900px;border-radius:20px;box-shadow:0 15px 35px rgba(0,0,0,.1);overflow:hidden;display:flex;flex-direction:column}
-.header-bar{background:linear-gradient(135deg,#2c3e50,#3498db);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
-.dog-identity{display:flex;align-items:center;gap:10px}.dog-identity h1{font-size:1.5rem;cursor:pointer}.dog-identity h1:hover::after{content:" ✏️";font-size:.8rem}
-.stage-badge{background:rgba(255,255,255,.2);padding:4px 10px;border-radius:20px;font-size:.85rem}.time-display{text-align:right;font-size:.9rem;opacity:.9}
-.lang-select{margin-left:auto;margin-right:12px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:6px 8px;font-weight:700;cursor:pointer}.lang-select option{color:#222;background:#fff}
-.main-layout{display:grid;grid-template-columns:1fr 300px;gap:15px;padding:15px}
-@media(max-width:768px){.main-layout{grid-template-columns:1fr}}
-.viewport-container{position:relative;width:100%;height:380px;background:#e3f2fd;border-radius:var(--border-radius);overflow:hidden;border:3px solid #cbd5e1}
-.scene{position:absolute;width:100%;height:100%;display:none}.scene.active{display:block}
-.scene-salotto{background:linear-gradient(to bottom,#fde2e4 70%,#d8e2dc 70%)}.scene-giardino{background:linear-gradient(to bottom,#bae6fd 60%,#86efac 60%)}.scene-cucina{background:linear-gradient(to bottom,#fef3c7 65%,#cbd5e1 65%)}
-.scene-obj{position:absolute;cursor:pointer;transition:transform .2s,opacity .3s}.scene-obj:hover{transform:scale(1.08)}
-#obj-cuscino{bottom:40px;left:40px;font-size:45px}#obj-calzino{bottom:35px;left:140px;font-size:35px}#obj-pianta{bottom:120px;right:50px;font-size:55px}#obj-ciabatta{bottom:30px;right:160px;font-size:35px}#obj-cavi{bottom:40px;left:220px;font-size:35px}#obj-spazzatura{bottom:80px;right:40px;font-size:50px}#obj-scatola{bottom:45px;left:50px;font-size:45px}#obj-tappeto{bottom:20px;right:220px;font-size:40px}
-.dog-wrapper{position:absolute;bottom:40px;left:50%;width:120px;height:120px;transition:all .5s ease-in-out;cursor:pointer;z-index:5}.dog-svg{width:100%;height:100%}
-.mischief-alert{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:.9rem;box-shadow:0 4px 10px rgba(231,76,60,.4);display:none;z-index:10;animation:pulse 1s infinite alternate}
-@keyframes pulse{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) scale(1.05)}}
-.speech-bubble{position:absolute;top:-45px;left:50%;transform:translateX(-50%);background:#fff;padding:6px 12px;border-radius:12px;font-size:.8rem;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,.15);white-space:nowrap;display:none;z-index:12}.speech-bubble:after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);border-width:6px 6px 0;border-style:solid;border-color:#fff transparent}
-.sidebar{display:flex;flex-direction:column;gap:12px}.panel-box{background:var(--bg-main);padding:12px;border-radius:var(--border-radius)}.panel-title{font-size:.85rem;font-weight:bold;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;display:flex;justify-content:space-between}
-.stat-row{margin-bottom:8px}.stat-label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:3px;font-weight:600}.bar-container{width:100%;height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden}.bar-fill{height:100%;width:100%;transition:width .4s ease,background-color .4s ease}
-.controls-panel{padding:0 15px 15px;display:flex;flex-direction:column;gap:10px}.scene-selector{display:flex;gap:8px}.btn-scene{flex:1;padding:8px;border:none;background:#e2e8f0;color:var(--text-dark);border-radius:8px;cursor:pointer;font-weight:bold;font-size:.85rem}.btn-scene.active{background:var(--primary);color:#fff}
-.actions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px}.btn-action{padding:10px;border:none;border-radius:8px;background:#f1f5f9;color:var(--text-dark);font-weight:bold;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.8rem}.btn-action:hover{background:#e2e8f0;transform:translateY(-2px)}.btn-action span{font-size:1.2rem}.btn-scold{background:#fee2e2;color:#991b1b}.btn-scold:hover{background:#fca5a5}
-.training-panel{display:none}.training-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.btn-command{padding:9px 5px;border:0;border-radius:8px;background:#e0f2fe;color:#075985;font-weight:700;cursor:pointer;font-size:.78rem}.btn-command:hover{background:#bae6fd;transform:translateY(-1px)}
-.training-note{font-size:.72rem;color:var(--text-light);margin-top:7px;line-height:1.25}
-.reward-overlay{position:absolute;inset:0;pointer-events:none;z-index:20;display:none}.reward-hand{position:absolute;left:50%;top:50%;font-size:55px;opacity:0;transform:translate(-100px,-10px) rotate(-20deg);filter:drop-shadow(0 3px 3px rgba(0,0,0,.2))}.reward-biscuit{position:absolute;left:50%;top:58%;font-size:38px;opacity:0}
-.reward-overlay.show{display:block}.reward-overlay.show .reward-hand{animation:handReward 1.25s ease-out}.reward-overlay.show .reward-biscuit{animation:biscuitReward 1.1s .45s ease-out}
-@keyframes handReward{0%{opacity:0;transform:translate(-120px,-20px) rotate(-25deg)}25%{opacity:1}55%{opacity:1;transform:translate(-35px,-20px) rotate(5deg)}100%{opacity:0;transform:translate(20px,-10px) rotate(15deg)}}
-@keyframes biscuitReward{0%{opacity:0;transform:translate(-50%,10px) scale(.5)}30%{opacity:1}65%{opacity:1;transform:translate(-50%,-25px) scale(1.05)}100%{opacity:0;transform:translate(-50%,-55px) scale(.7)}}
-.anim-idle{animation:idle 2s infinite ease-in-out}.anim-walk{animation:walk .6s infinite alternate}.anim-happy{animation:bounce .4s infinite alternate}
-@keyframes idle{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}@keyframes walk{0%{transform:translateX(-50%) rotate(-3deg)}100%{transform:translateX(-50%) rotate(3deg)}}@keyframes bounce{0%{transform:translateX(-50%) translateY(0)}100%{transform:translateX(-50%) translateY(-20px)}}
-.cmd-sit{animation:cmdSit .9s ease forwards}.cmd-down{animation:cmdDown .9s ease forwards}.cmd-stand{animation:cmdStand .9s ease forwards}.cmd-come{animation:cmdCome .9s ease forwards}.cmd-stay{animation:cmdStay .9s ease forwards}.cmd-leave{animation:cmdLeave .9s ease forwards}
-@keyframes cmdSit{50%{transform:translateX(-50%) translateY(18px) scaleY(.82)}100%{transform:translateX(-50%) translateY(12px) scaleY(.9)}}@keyframes cmdDown{50%{transform:translateX(-50%) translateY(25px) scaleY(.65)}100%{transform:translateX(-50%) translateY(20px) scaleY(.7)}}@keyframes cmdStand{50%{transform:translateX(-50%) translateY(-8px) scaleY(1.05)}100%{transform:translateX(-50%) translateY(0)}}@keyframes cmdCome{0%{transform:translateX(-50%) translateX(-45px)}70%{transform:translateX(-50%) translateX(0) scale(1.05)}100%{transform:translateX(-50%) translateX(0)}}@keyframes cmdStay{0%,100%{transform:translateX(-50%) rotate(0)}50%{transform:translateX(-50%) rotate(1deg)}}@keyframes cmdLeave{50%{transform:translateX(-50%) rotate(-8deg) translateY(5px)}100%{transform:translateX(-50%) rotate(0)}}
-.event-log{height:100px;overflow-y:auto;font-size:.75rem;color:var(--text-dark);display:flex;flex-direction:column-reverse;gap:4px}.log-item{padding:3px 6px;background:#fff;border-radius:4px;border-left:3px solid var(--primary)}.log-item.warn{border-left-color:var(--accent)}.log-item.good{border-left-color:var(--success)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;justify-content:center;align-items:center;z-index:100}.modal-box{background:#fff;padding:20px;border-radius:var(--border-radius);max-width:400px;width:90%;text-align:center}.modal-box h2{margin-bottom:10px}.modal-box p{font-size:.9rem;color:var(--text-light);margin-bottom:15px}.modal-buttons{display:flex;gap:10px;justify-content:center}.btn-modal{padding:8px 16px;border:0;border-radius:6px;cursor:pointer;font-weight:bold}.btn-confirm{background:var(--success);color:#fff}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamagotchi Cane - Briciola</title>
+    <style>
+        :root {
+            --bg-main: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f1c40f;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .game-wrapper {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-bar {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dog-identity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dog-identity h1 {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .dog-identity h1:hover::after {
+            content: " ✏️";
+            font-size: 0.8rem;
+        }
+
+        .stage-badge {
+            background-color: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .time-display {
+            text-align: right;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .viewport-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background-color: #e3f2fd;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            border: 3px solid #cbd5e1;
+        }
+
+        /* Ambientazioni */
+        .scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            transition: opacity 0.5s;
+        }
+
+        .scene.active {
+            display: block;
+        }
+
+        .scene-salotto { background: linear-gradient(to bottom, #fde2e4 70%, #d8e2dc 70%); }
+        .scene-giardino { background: linear-gradient(to bottom, #bae6fd 60%, #86efac 60%); }
+        .scene-cucina { background: linear-gradient(to bottom, #fef3c7 65%, #cbd5e1 65%); }
+
+        /* Oggetti Interattivi / Dispetti */
+        .scene-obj {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.3s;
+        }
+
+        .scene-obj:hover { transform: scale(1.08); }
+
+        #obj-cuscino { bottom: 40px; left: 40px; font-size: 45px; }
+        #obj-calzino { bottom: 35px; left: 140px; font-size: 35px; }
+        #obj-pianta { bottom: 120px; right: 50px; font-size: 55px; }
+        #obj-ciabatta { bottom: 30px; right: 160px; font-size: 35px; }
+        #obj-cavi { bottom: 40px; left: 220px; font-size: 35px; }
+        #obj-spazzatura { bottom: 80px; right: 40px; font-size: 50px; }
+        #obj-scatola { bottom: 45px; left: 50px; font-size: 45px; }
+        #obj-tappeto { bottom: 20px; right: 220px; font-size: 40px; }
+
+        /* Dettagli Ottobre / Decorativi Interattivi */
+        .scene-decor {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .scene-decor:hover { transform: scale(1.12); }
+
+        #decor-zucca { bottom: 35px; right: 35px; font-size: 40px; }
+        #decor-ragnatela { top: 15px; right: 20px; font-size: 35px; }
+        #decor-foglia { bottom: 25px; left: 280px; font-size: 30px; }
+
+        /* Contenitore Dinamico Cacchette */
+        .poop-item {
+            position: absolute;
+            cursor: pointer;
+            font-size: 36px;
+            transition: transform 0.2s, opacity 0.3s;
+            z-index: 4;
+            animation: popIn 0.3s ease-out;
+        }
+        .poop-item:hover { transform: scale(1.15) rotate(10deg); }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Cane SVG e Posizionamento */
+        .dog-wrapper {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            transition: all 0.5s ease-in-out;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .dog-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Banner Dispetto */
+        .mischief-alert {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--accent);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+            display: none;
+            z-index: 10;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); }
+            100% { transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            display: none;
+            z-index: 12;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: white transparent;
+        }
+
+        /* Nuvoletta Puzzetta */
+        .fart-cloud {
+            position: absolute;
+            top: -30px;
+            right: -25px;
+            font-size: 28px;
+            display: none;
+            z-index: 13;
+            animation: floatUp 1.5s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(10px) scale(0.6); }
+            50% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-25px) scale(1.4); }
+        }
+
+        /* Sidebar e Statistiche */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-box {
+            background-color: var(--bg-main);
+            padding: 12px;
+            border-radius: var(--border-radius);
+        }
+
+        .panel-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-row {
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.4s ease, background-color 0.4s ease;
+        }
+
+        /* Controlli e Azioni */
+        .controls-panel {
+            padding: 0 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scene-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-scene {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .btn-scene.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        .btn-action span {
+            font-size: 1.2rem;
+        }
+
+        .btn-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-scold {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-scold:hover { background-color: #fca5a5; }
+
+        /* Sezione Ordini / Addestramento */
+        .training-section {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .training-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: var(--text-light);
+        }
+
+        .training-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .training-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .btn-command {
+            padding: 8px 4px;
+            border: none;
+            border-radius: 6px;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-size: 0.75rem;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        .btn-command:hover {
+            background-color: #bae6fd;
+            transform: translateY(-2px);
+        }
+
+        .btn-command span {
+            font-size: 1.1rem;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-box h2 { margin-bottom: 10px; }
+        .modal-box p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 15px; }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-modal {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-confirm { background-color: var(--success); color: white; }
+        .btn-cancel { background-color: #cbd5e1; color: var(--text-dark); }
+
+        /* Animazioni Cane */
+        .anim-idle { animation: idle 2s infinite ease-in-out; }
+        .anim-sleep { transform: translateX(-50%) rotate(-90deg) translateY(30px) !important; }
+        .anim-walk { animation: walk 0.6s infinite alternate; }
+        .anim-happy { animation: bounce 0.4s infinite alternate; }
+        .anim-sick { opacity: 0.7; filter: grayscale(40%); }
+        
+        /* Nuove animazioni per gli ordini */
+        .anim-sit { transform: translateX(-50%) translateY(12px) scale(0.95) !important; }
+        .anim-down { transform: translateX(-50%) translateY(22px) rotate(-10deg) scale(0.9, 0.8) !important; }
+        .anim-paw { animation: pawWave 0.5s ease-in-out 2; }
+        .anim-come { animation: comeForward 0.6s ease-in-out; }
+
+        @keyframes idle {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        @keyframes walk {
+            0% { transform: translateX(-50%) rotate(-3deg); }
+            100% { transform: translateX(-50%) rotate(3deg); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateX(-50%) translateY(0); }
+            100% { transform: translateX(-50%) translateY(-20px); }
+        }
+
+        @keyframes pawWave {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-50%) rotate(8deg); }
+        }
+
+        @keyframes comeForward {
+            0% { transform: translateX(-50%) translateY(0) scale(1); }
+            50% { transform: translateX(-50%) translateY(-10px) scale(1.05); }
+            100% { transform: translateX(-50%) translateY(0) scale(1); }
+        }
+
+        /* Registro Eventi */
+        .event-log {
+            height: 100px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 4px;
+        }
+
+        .log-item {
+            padding: 3px 6px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary);
+        }
+        .log-item.warn { border-left-color: var(--accent); }
+        .log-item.good { border-left-color: var(--success); }
+
+    </style>
 </head>
 <body>
+
 <div class="game-wrapper">
-<div class="header-bar">
-  <div class="dog-identity"><h1 id="dog-name-display" onclick="renameDog()">Briciola</h1><span id="stage-badge" class="stage-badge">Cucciolo</span></div>
-  <select id="language-select" class="lang-select" onchange="setLanguage(this.value)" aria-label="Lingua"><option value="it">🇮🇹 IT</option><option value="en">🇬🇧 EN</option><option value="fr">🇫🇷 FR</option></select>
-  <div class="time-display"><div><span data-i18n="ageLabel">Età</span>: <strong id="age-display">0 anni (0d)</strong></div><div id="clock-display" style="font-size:.75rem;opacity:.8">Giorno 1 - 08:00</div></div>
+    <!-- Header -->
+    <div class="header-bar">
+        <div class="dog-identity">
+            <h1 id="dog-name-display" onclick="renameDog()">Briciola</h1>
+            <span id="stage-badge" class="stage-badge">Cucciolo</span>
+        </div>
+        <div class="time-display">
+            <div>Età: <strong id="age-display">0 anni (0d)</strong></div>
+            <div id="clock-display" style="font-size: 0.75rem; opacity: 0.8;">Giorno 1 - 08:00</div>
+        </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="main-layout">
+        <!-- Area Visiva Principale -->
+        <div class="viewport-container">
+            <div id="mischief-alert" class="mischief-alert">⚠️ Dispetto in corso!</div>
+
+            <!-- Scene -->
+            <div id="scene-salotto" class="scene scene-salotto active">
+                <div id="obj-cuscino" class="scene-obj" onclick="interactObject('cuscino')">🛋️</div>
+                <div id="obj-calzino" class="scene-obj" onclick="interactObject('calzino')">🧦</div>
+                <div id="decor-zucca" class="scene-decor" onclick="interactDecor('zucca')">🎃</div>
+            </div>
+            
+            <div id="scene-giardino" class="scene scene-giardino">
+                <div id="obj-pianta" class="scene-obj" onclick="interactObject('pianta')">🪴</div>
+                <div id="obj-ciabatta" class="scene-obj" onclick="interactObject('ciabatta')">🥿</div>
+                <div id="obj-tappeto" class="scene-obj" onclick="interactObject('tappeto')">🧹</div>
+                <div id="decor-ragnatela" class="scene-decor" onclick="interactDecor('ragnatela')">🕸️️</div>
+            </div>
+
+            <div id="scene-cucina" class="scene scene-cucina">
+                <div id="obj-cavi" class="scene-obj" onclick="interactObject('cavi')">🔌</div>
+                <div id="obj-spazzatura" class="scene-obj" onclick="interactObject('spazzatura')">🗑️</div>
+                <div id="obj-scatola" class="scene-obj" onclick="interactObject('scatola')">📦</div>
+                <div id="decor-foglia" class="scene-decor" onclick="interactDecor('foglia')">🍂</div>
+            </div>
+
+            <!-- Cane SVG -->
+            <div id="dog-wrapper" class="dog-wrapper anim-idle" onclick="petDog()">
+                <div id="speech-bubble" class="speech-bubble">Bau!</div>
+                <div id="fart-cloud" class="fart-cloud">💨</div>
+                <svg class="dog-svg" viewBox="0 0 100 100">
+                    <!-- Orecchie -->
+                    <path id="ear-left" d="M 25 30 Q 10 35 15 55 Q 25 50 30 38" fill="#8B4513" />
+                    <path id="ear-right" d="M 75 30 Q 90 35 85 55 Q 75 50 70 38" fill="#8B4513" />
+                    
+                    <!-- Corpo -->
+                    <ellipse cx="50" cy="65" rx="25" ry="20" fill="#D2B48C" />
+                    
+                    <!-- Testa -->
+                    <circle cx="50" cy="40" r="22" fill="#D2B48C" />
+                    
+                    <!-- Muto/Canna Nasale -->
+                    <ellipse cx="50" cy="46" rx="10" ry="7" fill="#F5DEB3" />
+                    <polygon points="46,42 54,42 50,47" fill="#2C3E50" />
+                    
+                    <!-- Occhi -->
+                    <circle id="eye-left" cx="40" cy="36" r="3" fill="#2C3E50" />
+                    <circle id="eye-right" cx="60" cy="36" r="3" fill="#2C3E50" />
+                    
+                    <!-- Occhi Chiusi (Nascosti per default) -->
+                    <path id="eyes-closed" d="M 37 36 Q 40 39 43 36 M 57 36 Q 60 39 63 36" stroke="#2C3E50" stroke-width="2" fill="none" style="display:none;" />
+
+                    <!-- Lingua (Nascosta) -->
+                    <path id="dog-tongue" d="M 48 49 Q 50 56 52 49" fill="#FF6B6B" style="display:none;" />
+
+                    <!-- Zampe -->
+                    <ellipse cx="38" cy="82" rx="6" ry="4" fill="#8B4513" />
+                    <ellipse cx="62" cy="82" rx="6" ry="4" fill="#8B4513" />
+
+                    <!-- Coda -->
+                    <path id="dog-tail" d="M 72 65 Q 85 60 80 50" stroke="#8B4513" stroke-width="5" stroke-linecap="round" fill="none" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Sidebar Statistiche -->
+        <div class="sidebar">
+            <div class="panel-box">
+                <div class="panel-title">Stato Fisico</div>
+                
+                <div class="stat-row">
+                    <div class="stat-label"><span>Fame</span><span id="val-hunger">100%</span></div>
+                    <div class="bar-container"><div id="bar-hunger" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Energia</span><span id="val-energy">100%</span></div>
+                    <div class="bar-container"><div id="bar-energy" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Igiene</span><span id="val-hygiene">100%</span></div>
+                    <div class="bar-container"><div id="bar-hygiene" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Vescica</span><span id="val-bladder">100%</span></div>
+                    <div class="bar-container"><div id="bar-bladder" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-title">Mente e Salute</div>
+                
+                <div class="stat-row">
+                    <div class="stat-label"><span>Felicità</span><span id="val-happiness">100%</span></div>
+                    <div class="bar-container"><div id="bar-happiness" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Addestramento</span><span id="val-training">0%</span></div>
+                    <div class="bar-container"><div id="bar-training" class="bar-fill" style="width: 0%; background-color: var(--primary);"></div></div>
+                </div>
+
+                <div class="stat-row">
+                    <div class="stat-label"><span>Salute</span><span id="val-health">100%</span></div>
+                    <div class="bar-container"><div id="bar-health" class="bar-fill" style="width: 100%; background-color: var(--success);"></div></div>
+                </div>
+            </div>
+
+            <div class="panel-box">
+                <div class="panel-title">Diario</div>
+                <div id="event-log" class="event-log">
+                    <div class="log-item good">Benvenuto nel gioco! Abbi cura del tuo cane.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controlli Inferiori -->
+    <div class="controls-panel">
+        <div class="scene-selector">
+            <button id="btn-scene-salotto" class="btn-scene active" onclick="switchScene('salotto')">🛋️ Salotto</button>
+            <button id="btn-scene-giardino" class="btn-scene" onclick="switchScene('giardino')">🌳 Giardino</button>
+            <button id="btn-scene-cucina" class="btn-scene" onclick="switchScene('cucina')">🍽 Cucina</button>
+        </div>
+
+        <div class="actions-grid">
+            <button class="btn-action" onclick="feedDog()"><span>🍖</span>Cibo</button>
+            <button class="btn-action" onclick="walkDog()"><span>🦮</span>Passeggiata</button>
+            <button class="btn-action" onclick="playDog()"><span>🎾</span>Gioca</button>
+            <button class="btn-action" onclick="washDog()"><span>🛁</span>Lavaggio</button>
+            <button class="btn-action" onclick="sleepDog()"><span>💤</span>Nanna</button>
+            <button class="btn-action" onclick="vetDog()"><span>🩺</span>Veterinario</button>
+            <button class="btn-action btn-scold" onclick="scoldDog()"><span>⚠️</span>Sgrida</button>
+        </div>
+
+        <!-- Sezione Addestramento / Ordini -->
+        <div class="training-section">
+            <div class="training-title">🐾 Addestramento</div>
+            <div class="training-grid">
+                <button class="btn-command" onclick="giveCommand('seduto')"><span>🪑</span>Seduto</button>
+                <button class="btn-command" onclick="giveCommand('terra')"><span>🛏️</span>A terra</button>
+                <button class="btn-command" onclick="giveCommand('piedi')"><span>🐕</span>In piedi</button>
+                <button class="btn-command" onclick="giveCommand('zampa')"><span>🐾</span>Zampa</button>
+                <button class="btn-command" onclick="giveCommand('vieni')"><span>❤️</span>Vieni</button>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="main-layout">
-<div class="viewport-container">
-<div id="mischief-alert" class="mischief-alert">⚠️ <span data-i18n="mischiefAlert">Dispetto in corso!</span></div>
-<div id="scene-salotto" class="scene scene-salotto active"><div id="obj-cuscino" class="scene-obj" onclick="interactObject('cuscino')">🛋️</div><div id="obj-calzino" class="scene-obj" onclick="interactObject('calzino')">🧦</div></div>
-<div id="scene-giardino" class="scene scene-giardino"><div id="obj-pianta" class="scene-obj" onclick="interactObject('pianta')">🪴</div><div id="obj-ciabatta" class="scene-obj" onclick="interactObject('ciabatta')">🥿</div><div id="obj-tappeto" class="scene-obj" onclick="interactObject('tappeto')">🧹</div></div>
-<div id="scene-cucina" class="scene scene-cucina"><div id="obj-cavi" class="scene-obj" onclick="interactObject('cavi')">🔌</div><div id="obj-spazzatura" class="scene-obj" onclick="interactObject('spazzatura')">🗑️</div><div id="obj-scatola" class="scene-obj" onclick="interactObject('scatola')">📦</div></div>
-<div id="dog-wrapper" class="dog-wrapper anim-idle" onclick="petDog()">
-<div id="speech-bubble" class="speech-bubble">Bau!</div>
-<svg class="dog-svg" viewBox="0 0 100 100">
-<path d="M25 30Q10 35 15 55Q25 50 30 38" fill="#8B4513"/><path d="M75 30Q90 35 85 55Q75 50 70 38" fill="#8B4513"/>
-<ellipse cx="50" cy="65" rx="25" ry="20" fill="#D2B48C"/><circle cx="50" cy="40" r="22" fill="#D2B48C"/>
-<ellipse cx="50" cy="46" rx="10" ry="7" fill="#F5DEB3"/><polygon points="46,42 54,42 50,47" fill="#2C3E50"/>
-<circle cx="40" cy="36" r="3" fill="#2C3E50"/><circle cx="60" cy="36" r="3" fill="#2C3E50"/>
-<ellipse cx="38" cy="82" rx="6" ry="4" fill="#8B4513"/><ellipse cx="62" cy="82" rx="6" ry="4" fill="#8B4513"/>
-<path d="M72 65Q85 60 80 50" stroke="#8B4513" stroke-width="5" stroke-linecap="round" fill="none"/>
-</svg></div>
-<div id="reward-overlay" class="reward-overlay"><div class="reward-hand">👋</div><div class="reward-biscuit">🦴</div></div>
+
+<!-- Modal Personalizzato -->
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-box">
+        <h2 id="modal-title">Titolo</h2>
+        <p id="modal-desc">Descrizione del messaggio del modal.</p>
+        <div class="modal-buttons">
+            <button id="btn-modal-confirm" class="btn-modal btn-confirm" onclick="closeModal()">OK</button>
+        </div>
+    </div>
 </div>
-<div class="sidebar">
-<div class="panel-box"><div class="panel-title" data-i18n="physical">Stato Fisico</div>
-<div class="stat-row"><div class="stat-label"><span data-i18n="hunger">Fame</span><span id="val-hunger">100%</span></div><div class="bar-container"><div id="bar-hunger" class="bar-fill" style="background:var(--success)"></div></div></div>
-<div class="stat-row"><div class="stat-label"><span data-i18n="energy">Energia</span><span id="val-energy">100%</span></div><div class="bar-container"><div id="bar-energy" class="bar-fill" style="background:var(--success)"></div></div></div>
-<div class="stat-row"><div class="stat-label"><span data-i18n="hygiene">Igiene</span><span id="val-hygiene">100%</span></div><div class="bar-container"><div id="bar-hygiene" class="bar-fill" style="background:var(--success)"></div></div></div>
-<div class="stat-row"><div class="stat-label"><span data-i18n="bladder">Vescica</span><span id="val-bladder">100%</span></div><div class="bar-container"><div id="bar-bladder" class="bar-fill" style="background:var(--success)"></div></div></div></div>
-<div class="panel-box"><div class="panel-title" data-i18n="mind">Mente e Salute</div>
-<div class="stat-row"><div class="stat-label"><span data-i18n="happiness">Felicità</span><span id="val-happiness">100%</span></div><div class="bar-container"><div id="bar-happiness" class="bar-fill" style="background:var(--success)"></div></div></div>
-<div class="stat-row"><div class="stat-label"><span data-i18n="training">Addestramento</span><span id="val-training">0%</span></div><div class="bar-container"><div id="bar-training" class="bar-fill" style="background:var(--primary);width:0%"></div></div></div>
-<div class="stat-row"><div class="stat-label"><span data-i18n="health">Salute</span><span id="val-health">100%</span></div><div class="bar-container"><div id="bar-health" class="bar-fill" style="background:var(--success)"></div></div></div></div>
-<div class="panel-box"><div class="panel-title" data-i18n="diary">Diario</div><div id="event-log" class="event-log"></div></div>
-</div></div>
-<div class="controls-panel">
-<div class="scene-selector"><button id="btn-scene-salotto" class="btn-scene active" onclick="switchScene('salotto')" data-i18n="living">🛋️ Salotto</button><button id="btn-scene-giardino" class="btn-scene" onclick="switchScene('giardino')" data-i18n="garden">🌳 Giardino</button><button id="btn-scene-cucina" class="btn-scene" onclick="switchScene('cucina')" data-i18n="kitchen">🍽️ Cucina</button></div>
-<div class="actions-grid">
-<button class="btn-action" onclick="feedDog()"><span>🍖</span><span data-i18n="food">Cibo</span></button><button class="btn-action" onclick="walkDog()"><span>🦮</span><span data-i18n="walk">Passeggiata</span></button><button class="btn-action" onclick="playDog()"><span>🎾</span><span data-i18n="play">Gioca</span></button><button class="btn-action" onclick="washDog()"><span>🛁</span><span data-i18n="wash">Lavaggio</span></button><button class="btn-action" onclick="sleepDog()"><span>💤</span><span data-i18n="sleep">Nanna</span></button><button class="btn-action" onclick="vetDog()"><span>🩺</span><span data-i18n="vet">Veterinario</span></button><button class="btn-action btn-scold" onclick="scoldDog()"><span>⚠️</span><span data-i18n="scold">Sgrida</span></button>
-</div>
-<div class="panel-box training-panel" style="display:block"><div class="panel-title"><span data-i18n="trainingTitle">Addestramento</span> 🐾</div>
-<div class="training-grid">
-<button class="btn-command" onclick="trainCommand('seduto')">🪑 <span data-i18n="sit">Seduto</span></button><button class="btn-command" onclick="trainCommand('terra')">⬇️ <span data-i18n="down">A terra</span></button><button class="btn-command" onclick="trainCommand('inPiedi')">🐕 <span data-i18n="stand">In piedi</span></button><button class="btn-command" onclick="trainCommand('vieni')">🏃 <span data-i18n="come">Vieni</span></button><button class="btn-command" onclick="trainCommand('fermo')">✋ <span data-i18n="stay">Fermo</span></button><button class="btn-command" onclick="trainCommand('lascia')">🦴 <span data-i18n="leave">Lascia</span></button>
-</div><div class="training-note" data-i18n="trainingNote">Insegna un comando. Se Briciola lo esegue bene, riceverà una ricompensa.</div></div>
-</div></div>
-<div id="modal-overlay" class="modal-overlay"><div class="modal-box"><h2 id="modal-title">Titolo</h2><p id="modal-desc"></p><div class="modal-buttons"><button class="btn-modal btn-confirm" onclick="closeModal()">OK</button></div></div></div>
+
 <script>
-const CONFIG={tickRateMs:1000,minutesPerTick:10,saveKey:'tamagotchi_dog_save_v2'};
-const T={
-it:{ageLabel:"Età",mischiefAlert:"Dispetto in corso!",physical:"Stato Fisico",mind:"Mente e Salute",hunger:"Fame",energy:"Energia",hygiene:"Igiene",bladder:"Vescica",happiness:"Felicità",training:"Addestramento",health:"Salute",diary:"Diario",living:"🛋️ Salotto",garden:"🌳 Giardino",kitchen:"🍽️ Cucina",food:"Cibo",walk:"Passeggiata",play:"Gioca",wash:"Lavaggio",sleep:"Nanna",vet:"Veterinario",scold:"Sgrida",trainingTitle:"Addestramento",sit:"Seduto",down:"A terra",stand:"In piedi",come:"Vieni",stay:"Fermo",leave:"Lascia",trainingNote:"Insegna un comando. Se Briciola lo esegue bene, riceverà una ricompensa.",good:"Bravo!",treat:"Biscottino!",pet:"Che bravo!",distracted:"Si è distratto... 👀",noReason:"Hai sgridato senza motivo. Si è rattristato.",learned:"ha imparato il comando",failed:"non ha ancora imparato bene",mischief:"sta facendo un dispetto!",scolded:"Hai corretto il dispetto.",gameOver:"Game Over",gameOverDesc:"non ce l'ha fatta... Abbi più cura dei suoi bisogni la prossima volta!",healthy:"sta benissimo.",sick:"si è ammalato! Portalo dal veterinario.",healed:"Salute ripristinata!",fed:"Hai dato da mangiare a",walked:"Bella passeggiata con",played:"Hai giocato con",washed:"Ora è pulitissimo!",sleeping:"sta dormendo.",woke:"si è svegliato!",renamed:"Hai rinominato il tuo cane in",stages:["Cucciolo","Giovane","Adulto","Anziano","Vecchiaia Avanzata"]},
-en:{ageLabel:"Age",mischiefAlert:"Mischief in progress!",physical:"Physical State",mind:"Mind & Health",hunger:"Hunger",energy:"Energy",hygiene:"Hygiene",bladder:"Bladder",happiness:"Happiness",training:"Training",health:"Health",diary:"Diary",living:"🛋️ Living room",garden:"🌳 Garden",kitchen:"🍽️ Kitchen",food:"Food",walk:"Walk",play:"Play",wash:"Bath",sleep:"Sleep",vet:"Vet",scold:"Scold",trainingTitle:"Training",sit:"Sit",down:"Down",stand:"Stand",come:"Come",stay:"Stay",leave:"Leave",trainingNote:"Teach a command. If Briciola does it well, he gets a reward.",good:"Good boy!",treat:"Treat!",pet:"What a good dog!",distracted:"He got distracted... 👀",noReason:"You scolded him for no reason. He got sad.",learned:"learned the command",failed:"hasn't learned it well yet",mischief:"is causing trouble!",scolded:"You stopped the mischief.",gameOver:"Game Over",gameOverDesc:"didn't make it... Take better care of his needs next time!",healthy:"is doing great.",sick:"got sick! Take him to the vet.",healed:"Health restored!",fed:"You fed",walked:"Nice walk with",played:"You played with",washed:"Now he's sparkling clean!",sleeping:"is sleeping.",woke:"woke up!",renamed:"You renamed your dog",stages:["Puppy","Young","Adult","Senior","Advanced old age"]},
-fr:{ageLabel:"Âge",mischiefAlert:"Bêtise en cours !",physical:"État physique",mind:"Esprit et santé",hunger:"Faim",energy:"Énergie",hygiene:"Hygiène",bladder:"Vessie",happiness:"Bonheur",training:"Dressage",health:"Santé",diary:"Journal",living:"🛋️ Salon",garden:"🌳 Jardin",kitchen:"🍽️ Cuisine",food:"Nourriture",walk:"Promenade",play:"Jouer",wash:"Bain",sleep:"Dodo",vet:"Vétérinaire",scold:"Gronder",trainingTitle:"Dressage",sit:"Assis",down:"Couché",stand:"Debout",come:"Viens",stay:"Reste",leave:"Laisse",trainingNote:"Apprends un ordre. Si Briciola le réussit, il reçoit une récompense.",good:"Bravo !",treat:"Friandise !",pet:"Quel bon chien !",distracted:"Il s'est distrait... 👀",noReason:"Tu l'as grondé sans raison. Il est triste.",learned:"a appris l'ordre",failed:"ne le maîtrise pas encore",mischief:"fait une bêtise !",scolded:"Tu as arrêté la bêtise.",gameOver:"Fin du jeu",gameOverDesc:"n'a pas survécu... Prends mieux soin de ses besoins la prochaine fois !",healthy:"va très bien.",sick:"est malade ! Emmène-le chez le vétérinaire.",healed:"Santé restaurée !",fed:"Tu as nourri",walked:"Belle promenade avec",played:"Tu as joué avec",washed:"Il est maintenant tout propre !",sleeping:"dort.",woke:"s'est réveillé !",renamed:"Tu as renommé ton chien",stages:["Chiot","Jeune","Adulte","Senior","Vieillesse avancée"]}}
-let lang=localStorage.getItem('vitaLang')||'it';
-let state={dogName:"Briciola",ageDays:0,dogAgeSeconds:0,gameMinutes:480,gameDays:1,hunger:100,energy:100,hygiene:100,bladder:100,happiness:100,training:0,health:100,isSleeping:false,isSick:false,isMischiefActive:false,activeMischiefObj:null,lastMischiefTime:0,currentScene:'salotto',commandTraining:{seduto:0,terra:0,inPiedi:0,vieni:0,fermo:0,lascia:0}};
-let loop=null;
-const q=id=>document.getElementById(id), t=k=>T[lang][k]||T.it[k]||k;
-const commandNames={seduto:'sit',terra:'down',inPiedi:'stand',vieni:'come',fermo:'stay',lascia:'leave'};
-const commandAnim={seduto:'cmd-sit',terra:'cmd-down',inPiedi:'cmd-stand',vieni:'cmd-come',fermo:'cmd-stay',lascia:'cmd-leave'};
-function save(){try{localStorage.setItem(CONFIG.saveKey,JSON.stringify(state));localStorage.setItem('vitaLang',lang)}catch(e){}}
-function load(){try{const s=localStorage.getItem(CONFIG.saveKey);if(s){const p=JSON.parse(s);state={...state,...p,commandTraining:{...state.commandTraining,...(p.commandTraining||{})}}}}catch(e){}}
-function setLanguage(v){lang=v;localStorage.setItem('vitaLang',v);document.documentElement.lang=v;applyTranslations();updateUI()}
-function applyTranslations(){document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));q('language-select').value=lang}
-function ageYears(){return Math.floor((state.dogAgeSeconds/600)/365)}
-function stage(){let y=ageYears();if(y<1)return 0;if(y<3)return 1;if(y<8)return 2;if(y<12)return 3;return 4}
-function updateAge(){const y=ageYears(),d=Math.floor((state.dogAgeSeconds/600))%365,s=stage();q('stage-badge').textContent=t('stages')[s];q('age-display').textContent=`${y} ${lang==='it'?'anni':lang==='fr'?'ans':'years'} (${d}d)`}
-function log(msg,type='normal'){const e=document.createElement('div');e.className='log-item '+type;e.textContent=msg;q('event-log').prepend(e);while(q('event-log').children.length>15)q('event-log').lastChild.remove()}
-function speech(x){const b=q('speech-bubble');b.textContent=x;b.style.display='block';clearTimeout(b._tm);b._tm=setTimeout(()=>b.style.display='none',2200)}
-function anim(cls,d=1100){const w=q('dog-wrapper');if(state.isSleeping)return;w.classList.remove('anim-idle','anim-walk','anim-happy',...Object.values(commandAnim));void w.offsetWidth;w.classList.add(cls);setTimeout(()=>{w.classList.remove(cls);w.classList.add('anim-idle')},d)}
-function reward(){const r=q('reward-overlay');r.classList.remove('show');void r.offsetWidth;r.classList.add('show');setTimeout(()=>r.classList.remove('show'),1800)}
-function trainCommand(cmd){if(state.isSleeping)return;const skill=state.commandTraining[cmd]||0;const stageBonus=[.18,.12,.08,.05,.03][stage()];const chance=Math.min(.94,.30+skill*.006+stageBonus+(Math.random()*.14-.07));if(Math.random()<chance){state.commandTraining[cmd]=Math.min(100,skill+5+Math.random()*3);state.training=Math.min(100,state.training+2.5);state.happiness=Math.min(100,state.happiness+4);speech('🐶 '+t('good'));anim(commandAnim[cmd],900);reward();setTimeout(()=>speech('🦴 '+t('treat')),650);log(`${state.dogName} ${t('learned')} ${t(commandNames[cmd])}.`,'good')}else{speech('🐶 '+t('distracted'));log(`${state.dogName} ${t('failed')}.`,'warn');state.happiness=Math.max(0,state.happiness-1);anim('anim-idle',500)}updateUI();save()}
-function feedDog(){if(state.isSleeping)return;if(state.hunger>=95){speech('😋');return}state.hunger=Math.min(100,state.hunger+35);state.bladder=Math.max(0,state.bladder-15);speech('Yummy! 🍖');log(`${t('fed')} ${state.dogName}.`);anim('anim-happy');updateUI()}
-function walkDog(){if(state.isSleeping)return;if(state.energy<20){speech('😴');return}state.energy=Math.max(0,state.energy-25);state.bladder=100;state.happiness=Math.min(100,state.happiness+25);state.hygiene=Math.max(0,state.hygiene-15);speech('🦮');log(`${t('walked')} ${state.dogName}!`);anim('anim-walk');updateUI()}
-function playDog(){if(state.isSleeping)return;if(state.energy<15){speech('💤');return}state.energy=Math.max(0,state.energy-20);state.happiness=Math.min(100,state.happiness+20);state.hunger=Math.max(0,state.hunger-10);speech('Fun! 🎾');log(`${t('played')} ${state.dogName}.`);anim('anim-happy');updateUI()}
-function washDog(){if(state.isSleeping)return;state.hygiene=100;state.happiness=Math.max(0,state.happiness-5);speech('Splish splash! 🛁');log(`${state.dogName}: ${t('washed')}`,'good');updateUI()}
-function sleepDog(){if(state.isSleeping){wakeUp();return}state.isSleeping=true;speech('Zzz...');log(`${state.dogName} ${t('sleeping')}`);q('dog-wrapper').style.opacity='.82';q('dog-wrapper').style.transform='translateX(-50%) rotate(-90deg)';q('dog-wrapper').querySelectorAll('circle').forEach((x,i)=>{if(i<2)x.style.display='none'});updateUI()}
-function wakeUp(){state.isSleeping=false;q('dog-wrapper').style.opacity='1';q('dog-wrapper').style.transform='translateX(-50%)';speech('Awwwn! ☀️');log(`${state.dogName} ${t('woke')}`);updateUI()}
-function vetDog(){if(!state.isSick&&state.health>80){speech('❤️');log(`${state.dogName} ${t('healthy')}`);return}state.isSick=false;state.health=100;q('dog-wrapper').style.filter='none';speech('❤️');log(`${state.dogName}: ${t('healed')}`,'good');updateUI()}
-function contractIllness(){state.isSick=true;q('dog-wrapper').style.filter='grayscale(40%)';speech('🤒');log(`${state.dogName} ${t('sick')}`,'warn')}
-function scoldDog(){if(!state.isMischiefActive){speech('❓');log(`${t('noReason')}`,'warn');state.happiness=Math.max(0,state.happiness-15);updateUI();return}state.isMischiefActive=false;q('mischief-alert').style.display='none';if(state.activeMischiefObj){const e=q('obj-'+state.activeMischiefObj);if(e)e.style.transform='none'}state.training=Math.min(100,state.training+4);state.happiness=Math.max(0,state.happiness-5);speech('🥺');log(`${state.dogName}: ${t('scolded')}`,'warn');state.activeMischiefObj=null;updateUI()}
-function petDog(){if(state.isSleeping)return;state.happiness=Math.min(100,state.happiness+5);speech('Purr... ❤️');anim('anim-happy');updateUI()}
-function switchScene(s){state.currentScene=s;document.querySelectorAll('.scene').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.btn-scene').forEach(x=>x.classList.remove('active'));q('scene-'+s).classList.add('active');q('btn-scene-'+s).classList.add('active')}
-function interactObject(o){if(state.isMischiefActive&&state.activeMischiefObj===o){state.isMischiefActive=false;q('mischief-alert').style.display='none';const e=q('obj-'+o);if(e)e.style.transform='none';state.activeMischiefObj=null;speech('🐾');log(`${state.dogName}: ${t('scolded')}`,'good')}else speech('Woof?')}
-function triggerMischief(){const map={salotto:['cuscino','calzino'],giardino:['pianta','ciabatta','tappeto'],cucina:['cavi','spazzatura','scatola']},a=map[state.currentScene];const o=a[Math.floor(Math.random()*a.length)];state.isMischiefActive=true;state.activeMischiefObj=o;q('mischief-alert').style.display='block';speech('Grrr! 😈');log(`${state.dogName} ${t('mischief')}`,'warn');const e=q('obj-'+o);if(e)e.style.transform='scale(1.3) rotate(15deg)'}
-function updateBar(k,v){const b=q('bar-'+k),x=q('val-'+k);if(!b||!x)return;v=Math.max(0,Math.min(100,v));x.textContent=Math.round(v)+'%';b.style.width=v+'%';if(k!=='training')b.style.background=v>60?'var(--success)':v>25?'var(--warning)':'var(--accent)'}
-function updateUI(){q('dog-name-display').textContent=state.dogName;const h=Math.floor(state.gameMinutes/60).toString().padStart(2,'0'),m=(state.gameMinutes%60).toString().padStart(2,'0');q('clock-display').textContent=`${lang==='it'?'Giorno':lang==='fr'?'Jour':'Day'} ${state.gameDays} - ${h}:${m}`;updateAge();updateBar('hunger',state.hunger);updateBar('energy',state.energy);updateBar('hygiene',state.hygiene);updateBar('bladder',state.bladder);updateBar('happiness',state.happiness);updateBar('training',state.training);updateBar('health',state.health)}
-function gameLoop(){state.gameMinutes+=10;if(state.gameMinutes>=1440){state.gameMinutes=0;state.gameDays++}state.dogAgeSeconds++;state.ageDays=Math.floor(state.dogAgeSeconds/600);const s=stage();if(state.isSleeping){state.energy=Math.min(100,state.energy+4);state.hunger=Math.max(0,state.hunger-.2);state.bladder=Math.max(0,state.bladder-.3);if(state.energy>=100)wakeUp()}else{const loss=s>=3?.8:.5;state.hunger=Math.max(0,state.hunger-.4);state.energy=Math.max(0,state.energy-loss);state.hygiene=Math.max(0,state.hygiene-.2);state.bladder=Math.max(0,state.bladder-.5);if(state.hunger<30||state.energy<20||state.bladder<20)state.happiness=Math.max(0,state.happiness-1)}if(state.bladder<=0){state.bladder=100;state.hygiene=Math.max(0,state.hygiene-40);state.happiness=Math.max(0,state.happiness-10);speech('Oops... 💩')}if((state.hygiene<20||state.hunger<15||state.happiness<15)&&!state.isSick&&Math.random()<.15)contractIllness();if(state.isSick){state.health=Math.max(0,state.health-1.5);state.happiness=Math.max(0,state.happiness-1)}else if(state.hunger>50&&state.hygiene>50&&state.energy>30)state.health=Math.min(100,state.health+.5);if(s===4)state.health=Math.max(0,state.health-.1);if(!state.isSleeping&&!state.isMischiefActive&&state.energy>30&&Math.random()<(100-state.training)*.002*(s===0?1.5:.7))triggerMischief();if(state.health<=0){clearInterval(loop);showModal(t('gameOver'),`${state.dogName} ${t('gameOverDesc')}`);return}updateUI();save()}
-function renameDog(){const n=prompt(lang==='it'?'Scegli un nuovo nome per il tuo cane:':lang==='fr'?'Choisis un nouveau nom pour ton chien :':'Choose a new name for your dog:',state.dogName);if(n&&n.trim()){state.dogName=n.trim();log(`${t('renamed')} ${state.dogName}.`);updateUI();save()}}
-function showModal(a,b){q('modal-title').textContent=a;q('modal-desc').textContent=b;q('modal-overlay').style.display='flex'}function closeModal(){q('modal-overlay').style.display='none'}
-function init(){load();applyTranslations();q('language-select').value=lang;updateUI();if(!q('event-log').children.length)log(lang==='it'?'Benvenuto! Abbi cura del tuo cane.':lang==='fr'?'Bienvenue ! Prends soin de ton chien.':'Welcome! Take good care of your dog.','good');loop=setInterval(gameLoop,CONFIG.tickRateMs)}
-window.onload=init;
+    /* ===================================================
+       CONFIGURAZIONE E STATO DEL GIOCO
+       =================================================== */
+    const GAME_CONFIG = {
+        tickRateMs: 1000,           // 1 secondo reale = 1 ciclo di gioco
+        minutesPerTick: 10,         // 1 secondo reale = 10 minuti di gioco
+        saveKey: 'tamagotchi_dog_save_v1'
+    };
+
+    let gameState = {
+        dogName: "Briciola",
+        ageDays: 0,
+        dogAgeSeconds: 0,           // Contatore indipendente in secondi reali per l'età biologica
+        gameMinutes: 480,           // Inizia alle 08:00 (8 * 60)
+        gameDays: 1,
+        
+        // Statistiche principali (0 - 100)
+        hunger: 100,
+        energy: 100,
+        hygiene: 100,
+        bladder: 100,
+        happiness: 100,
+        training: 0,
+        health: 100,
+
+        // Stati Comportamentali
+        isSleeping: false,
+        isSick: false,
+        isMischiefActive: false,
+        activeMischiefObj: null,
+        lastMischiefTime: 0,
+        
+        currentScene: 'salotto',
+        
+        // Stato comportamentale cane (normale, seduto, terra)
+        dogPosture: 'normale',
+
+        // Stato apprendimento comandi
+        learnedCommands: {
+            seduto: false,
+            terra: false,
+            piedi: false,
+            zampa: false,
+            vieni: false
+        },
+        
+        // Stato Cacchette per stanza (oggetti dinamici temporanei)
+        roomPoops: {
+            salotto: false,
+            giardino: false,
+            cucina: false
+        }
+    };
+
+    let gameLoopInterval = null;
+
+    /* ===================================================
+       SISTEMA DI SALVATAGGIO / CARICAMENTO (LOCALSTORAGE)
+       =================================================== */
+    function saveGame() {
+        try {
+            localStorage.setItem(GAME_CONFIG.saveKey, JSON.stringify(gameState));
+        } catch (e) {
+            console.error("Errore nel salvataggio:", e);
+        }
+    }
+
+    function loadGame() {
+        try {
+            const savedData = localStorage.getItem(GAME_CONFIG.saveKey);
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                gameState = { ...gameState, ...parsed };
+                if (!gameState.learnedCommands) {
+                    gameState.learnedCommands = { seduto: false, terra: false, piedi: false, zampa: false, vieni: false };
+                }
+                if (!gameState.dogPosture) {
+                    gameState.dogPosture = 'normale';
+                }
+            }
+        } catch (e) {
+            console.error("Errore nel caricamento:", e);
+        }
+    }
+
+    /* ===================================================
+       SISTEMA DI INVECCHIAMENTO E STADI DI VITA
+       =================================================== */
+    function getAgeYears() {
+        const totalDays = gameState.dogAgeSeconds / 600;
+        return Math.floor(totalDays / 365);
+    }
+
+    function getAgeStage() {
+        const years = getAgeYears();
+        if (years < 1) return { name: "Cucciolo", scale: 0.7, speed: 1.2 };
+        if (years < 3) return { name: "Giovane", scale: 0.9, speed: 1.0 };
+        if (years < 8) return { name: "Adulto", scale: 1.0, speed: 1.0 };
+        if (years < 12) return { name: "Anziano", scale: 0.95, speed: 0.8 };
+        return { name: "Vecchiaia Avanzata", scale: 0.9, speed: 0.6 };
+    }
+
+    function updateAgeAndStage() {
+        const stage = getAgeStage();
+        const years = getAgeYears();
+        const totalDays = Math.floor(gameState.dogAgeSeconds / 600);
+        const daysInYear = totalDays % 365;
+
+        document.getElementById('stage-badge').innerText = stage.name;
+        document.getElementById('age-display').innerText = `${years} anni (${daysInYear}d)`;
+
+        updateDogTransform();
+
+        if (years >= 8) {
+            document.getElementById('dog-wrapper').style.filter = "sepia(20%) contrast(90%)";
+        } else if (!gameState.isSick) {
+            document.getElementById('dog-wrapper').style.filter = "none";
+        }
+    }
+
+    /* ===================================================
+       GESTIONE POSIZIONE E TRASFORMAZIONE DEL CANE
+       =================================================== */
+    function updateDogTransform() {
+        const stage = getAgeStage();
+        const dogWrapper = document.getElementById('dog-wrapper');
+        
+        if (gameState.isSleeping) {
+            dogWrapper.style.transform = `translateX(-50%) scale(${stage.scale}) rotate(-90deg) translateY(30px)`;
+            return;
+        }
+
+        if (gameState.dogPosture === 'seduto') {
+            dogWrapper.style.transform = `translateX(-50%) scale(${stage.scale}) translateY(12px) scaleY(0.95)`;
+        } else if (gameState.dogPosture === 'terra') {
+            dogWrapper.style.transform = `translateX(-50%) scale(${stage.scale}) translateY(22px) rotate(-10deg) scale(0.9, 0.8)`;
+        } else {
+            dogWrapper.style.transform = `translateX(-50%) scale(${stage.scale})`;
+        }
+    }
+
+    /* ===================================================
+       LOOP DI GIOCO PRINCIPALE (gameLoop)
+       =================================================== */
+    function gameLoop() {
+        if (gameState.health <= 0) {
+            gameOver();
+            return;
+        }
+
+        // Incremento Tempo Orologio di Gioco
+        gameState.gameMinutes += GAME_CONFIG.minutesPerTick;
+        if (gameState.gameMinutes >= 1440) { // 24 ore
+            gameState.gameMinutes = 0;
+            gameState.gameDays++;
+        }
+
+        // Incremento Contatore Età Biologica
+        gameState.dogAgeSeconds++;
+        gameState.ageDays = Math.floor(gameState.dogAgeSeconds / 600);
+
+        const stage = getAgeStage();
+
+        // 1. Decadimento Parametri
+        if (gameState.isSleeping) {
+            gameState.energy = Math.min(100, gameState.energy + 4);
+            gameState.hunger -= 0.2;
+            gameState.bladder -= 0.3;
+            if (gameState.energy >= 100) {
+                wakeUp();
+            }
+        } else {
+            const energyLoss = (stage.name === "Vecchiaia Avanzata" || stage.name === "Anziano") ? 0.8 : 0.5;
+            
+            gameState.hunger = Math.max(0, gameState.hunger - 0.4);
+            gameState.energy = Math.max(0, gameState.energy - energyLoss);
+            gameState.hygiene = Math.max(0, gameState.hygiene - 0.2);
+            gameState.bladder = Math.max(0, gameState.bladder - 0.5);
+
+            if (gameState.hunger < 30 || gameState.energy < 20 || gameState.bladder < 20) {
+                gameState.happiness = Math.max(0, gameState.happiness - 1);
+            }
+        }
+
+        // 2. Gestione Bisogni Estremi (Incidente Vescica)
+        if (gameState.bladder <= 0) {
+            triggerAccident();
+        }
+
+        // 2b. Generazione spontanea rara di cacchette nel mondo
+        if (!gameState.isSleeping && Math.random() < 0.001) {
+            const rooms = ['salotto', 'giardino', 'cucina'];
+            const randRoom = rooms[Math.floor(Math.random() * rooms.length)];
+            if (!gameState.roomPoops[randRoom]) {
+                gameState.roomPoops[randRoom] = true;
+                if (randRoom === gameState.currentScene) {
+                    renderRoomPoop();
+                }
+                logEvent(`Una misteriosa cacchetta è apparsa in ${randRoom}! 💩`, "warn");
+            }
+        }
+
+        // 2c. Evento Casuale Puzzetta
+        if (!gameState.isSleeping && Math.random() < 0.003) {
+            triggerFart();
+        }
+
+        // 3. Sistema di Malattia
+        if ((gameState.hygiene < 20 || gameState.hunger < 15 || gameState.happiness < 15) && !gameState.isSick) {
+            if (Math.random() < 0.15) {
+                contractIllness();
+            }
+        }
+
+        if (gameState.isSick) {
+            gameState.health = Math.max(0, gameState.health - 1.5);
+            gameState.happiness = Math.max(0, gameState.happiness - 1);
+        } else if (gameState.hunger > 50 && gameState.hygiene > 50 && gameState.energy > 30) {
+            gameState.health = Math.min(100, gameState.health + 0.5);
+        }
+
+        if (stage.name === "Vecchiaia Avanzata") {
+            gameState.health = Math.max(0, gameState.health - 0.1);
+        }
+
+        // 4. Generazione Dispetti
+        if (!gameState.isSleeping && !gameState.isMischiefActive && gameState.energy > 30) {
+            const mischiefChance = (100 - gameState.training) * 0.002 * (stage.name === "Cucciolo" ? 1.5 : 0.7);
+            if (Math.random() < mischiefChance) {
+                triggerMischief();
+            }
+        }
+
+        updateUI();
+        saveGame();
+    }
+
+    /* ===================================================
+       SISTEMA DI ADDESTRAMENTO E COMANDI
+       =================================================== */
+    function giveCommand(cmd) {
+        if (gameState.isSleeping) {
+            showSpeech("Zzz... 💤");
+            logEvent(`${gameState.dogName} sta dormendo e non può eseguire comandi.`);
+            return;
+        }
+
+        // Probabilità di successo basata sull'addestramento e sullo stato di apprendimento singolo
+        const isLearned = gameState.learnedCommands[cmd];
+        const successChance = isLearned ? 0.9 : Math.min(0.85, 0.15 + (gameState.training / 120));
+        const willSucceed = Math.random() < successChance;
+
+        if (!willSucceed) {
+            const confusedPhrases = ["Eh? 🤔", "Bau?", "Cosa devo fare?", "Boh? 🐾", "Tilts head..."];
+            const chosen = confusedPhrases[Math.floor(Math.random() * confusedPhrases.length)];
+            showSpeech(chosen);
+            logEvent(`${gameState.dogName} ti guarda confuso e non capisce il comando.`);
+            animateDog('anim-idle');
+            return;
+        }
+
+        // Esecuzione corretta del comando
+        if (cmd === 'seduto') {
+            gameState.dogPosture = 'seduto';
+            showSpeech("Seduto! 🐶");
+            logEvent(`${gameState.dogName} si è seduto! 🐾`);
+            animateDog('anim-sit');
+        } else if (cmd === 'terra') {
+            gameState.dogPosture = 'terra';
+            showSpeech("Cuccia! 🛏️");
+            logEvent(`${gameState.dogName} si è messo a terra.`);
+            animateDog('anim-down');
+        } else if (cmd === 'piedi') {
+            gameState.dogPosture = 'normale';
+            showSpeech("Eccomi! 🐕");
+            logEvent(`${gameState.dogName} si è rimesso in piedi.`);
+            animateDog('anim-happy');
+        } else if (cmd === 'zampa') {
+            showSpeech("Zampa! 🐾");
+            logEvent(`${gameState.dogName} ha dato la zampa!`);
+            animateDog('anim-paw');
+        } else if (cmd === 'vieni') {
+            gameState.dogPosture = 'normale';
+            showSpeech("Eccomi qui! ❤️");
+            logEvent(`Hai chiesto a ${gameState.dogName} di venire ed è corso da te.`);
+            animateDog('anim-come');
+        }
+
+        // Aggiornamento addestramento con progressione bilanciata
+        if (gameState.training < 100) {
+            gameState.training = Math.min(100, gameState.training + 3);
+        }
+        gameState.happiness = Math.min(100, gameState.happiness + 2);
+
+        // Controllo primo apprendimento comando specifico
+        if (!gameState.learnedCommands[cmd] && gameState.training >= 20) {
+            gameState.learnedCommands[cmd] = true;
+            const commandNames = { seduto: "SEDUTO", terra: "A TERRA", piedi: "IN PIEDI", zampa: "ZAMPA", vieni: "VIENI" };
+            logEvent(`Briciola ha imparato il comando ${commandNames[cmd]}! 🎉`, "good");
+            showSpeech("Evviva! 🎉");
+        }
+
+        updateDogTransform();
+        updateUI();
+    }
+
+    /* ===================================================
+       SISTEMA CACCHETTE & PUZZETTE (OTTOBRE)
+       =================================================== */
+    function triggerAccident() {
+        gameState.bladder = 100;
+        gameState.hygiene = Math.max(0, gameState.hygiene - 40);
+        gameState.happiness = Math.max(0, gameState.happiness - 10);
+        
+        if (!gameState.roomPoops[gameState.currentScene]) {
+            gameState.roomPoops[gameState.currentScene] = true;
+            renderRoomPoop();
+        }
+
+        const accidentPhrases = [
+            `💩 ${gameState.dogName} non ha trattenuto la pipì e ha fatto un disastro!`,
+            `Ops... ${gameState.dogName} ha combinato un pasticcio marrone 💩.`,
+            `La vescica ha ceduto! C'è una sorpresa 💩 sul pavimento.`
+        ];
+        const chosenPhrase = accidentPhrases[Math.floor(Math.random() * accidentPhrases.length)];
+        
+        showSpeech("Oops... 💩");
+        logEvent(chosenPhrase, "warn");
+    }
+
+    function renderRoomPoop() {
+        const sceneElem = document.getElementById(`scene-${gameState.currentScene}`);
+        if (!sceneElem) return;
+
+        const existingPoop = sceneElem.querySelector('.poop-item');
+        if (existingPoop) existingPoop.remove();
+
+        if (gameState.roomPoops[gameState.currentScene]) {
+            const poop = document.createElement('div');
+            poop.className = 'poop-item';
+            poop.innerHTML = '💩';
+            
+            const randomBottom = Math.floor(Math.random() * 40) + 30;
+            const randomLeft = Math.floor(Math.random() * 220) + 80;
+            poop.style.bottom = `${randomBottom}px`;
+            poop.style.left = `${randomLeft}px`;
+            
+            poop.onclick = () => cleanPoop(gameState.currentScene);
+            sceneElem.appendChild(poop);
+        }
+    }
+
+    function cleanPoop(roomName) {
+        gameState.roomPoops[roomName] = false;
+        
+        const sceneElem = document.getElementById(`scene-${roomName}`);
+        if (sceneElem) {
+            const poopElem = sceneElem.querySelector('.poop-item');
+            if (poopElem) poopElem.remove();
+        }
+
+        const reactionPhrases = [
+            "Ops...",
+            "Bleah! 💩",
+            "Che schifo...",
+            "Pulito! 🧹",
+            "Fatto! 😅"
+        ];
+        const chosen = reactionPhrases[Math.floor(Math.random() * reactionPhrases.length)];
+        showSpeech(chosen);
+        
+        logEvent(`Hai ripulito la cacchetta. Meno male!`, "good");
+        gameState.happiness = Math.min(100, gameState.happiness + 3);
+        updateUI();
+    }
+
+    function triggerFart() {
+        const cloud = document.getElementById('fart-cloud');
+        if (cloud) {
+            cloud.style.display = 'block';
+            setTimeout(() => {
+                cloud.style.display = 'none';
+            }, 1500);
+        }
+
+        const fartMessages = [
+            "💨 Briciola ha fatto una puzzetta silenziosa ma letale.",
+            "💨 Nessuno ha visto niente... ma l'aria è cambiata.",
+            "Briciola... sul serio? 😂 💨",
+            "💨 Ehm... forse è meglio cambiare stanza."
+        ];
+        const msg = fartMessages[Math.floor(Math.random() * fartMessages.length)];
+        
+        showSpeech("Puff! 💨");
+        logEvent(msg, "warn");
+    }
+
+    /* ===================================================
+       INTERAZIONE DETTAGLI STAGIONALI (OTTOBRE)
+       =================================================== */
+    function interactDecor(decorType) {
+        if (gameState.isSleeping) return;
+
+        let speechOptions = [];
+        let logMessage = "";
+
+        if (decorType === 'zucca') {
+            speechOptions = ["Sniff... 🎃", "Bau?", "Gulp!"];
+            const zuccaLogs = [
+                `Briciola annusa la zucca. 🎃`,
+                `Briciola la guarda perplessa.`,
+                `No ${gameState.dogName}, non si mangia! 😂`
+            ];
+            logMessage = zuccaLogs[Math.floor(Math.random() * zuccaLogs.length)];
+            animateDog('anim-happy');
+        } else if (decorType === 'ragnatela') {
+            speechOptions = ["Grrr...", "Uff!", "Bau! 🕷️"];
+            const webLogs = [
+                `Briciola guarda la ragnatela. 🕸️`,
+                `Meglio non toccarla... 🕷️`,
+                `${gameState.dogName} ha trovato una ragnatela!`
+            ];
+            logMessage = webLogs[Math.floor(Math.random() * webLogs.length)];
+        } else if (decorType === 'foglia') {
+            speechOptions = ["Yip! 🍂", "Fruscio!", "Bau!"];
+            const leafLogs = [
+                `Briciola prova a prendere la foglia! 🍂`,
+                `La foglia si è mossa!`,
+                `${gameState.dogName} vorrebbe inseguirla. 😂`
+            ];
+            logMessage = leafLogs[Math.floor(Math.random() * leafLogs.length)];
+            animateDog('anim-walk');
+        }
+
+        const chosenSpeech = speechOptions[Math.floor(Math.random() * speechOptions.length)];
+        showSpeech(chosenSpeech);
+        logEvent(logMessage);
+        updateUI();
+    }
+
+    /* ===================================================
+       DISPETTI E COMPORTAMENTI
+       =================================================== */
+    function triggerMischief() {
+        const objectsByScene = {
+            salotto: ['cuscino', 'calzino'],
+            giardino: ['pianta', 'ciabatta', 'tappeto'],
+            cucina: ['cavi', 'spazzatura', 'scatola']
+        };
+
+        const availableObjs = objectsByScene[gameState.currentScene];
+        if (!availableObjs || availableObjs.length === 0) return;
+
+        const randomObj = availableObjs[Math.floor(Math.random() * availableObjs.length)];
+        gameState.isMischiefActive = true;
+        gameState.activeMischiefObj = randomObj;
+
+        document.getElementById('mischief-alert').style.display = 'block';
+        showSpeech("Grrr! 😈");
+        logEvent(`${gameState.dogName} sta facendo un dispetto! Sgridalo o fermalo!`, "warn");
+
+        const objElem = document.getElementById(`obj-${randomObj}`);
+        if (objElem) {
+            objElem.style.transform = "scale(1.3) rotate(15deg)";
+        }
+    }
+
+    function scoldDog() {
+        if (!gameState.isMischiefActive) {
+            showSpeech("❓");
+            logEvent(`Hai sgridato ${gameState.dogName} senza motivo. Si è rattristato.`, "warn");
+            gameState.happiness = Math.max(0, gameState.happiness - 15);
+            updateUI();
+            return;
+        }
+
+        gameState.isMischiefActive = false;
+        document.getElementById('mischief-alert').style.display = 'none';
+        
+        if (gameState.activeMischiefObj) {
+            const objElem = document.getElementById(`obj-${gameState.activeMischiefObj}`);
+            if (objElem) objElem.style.transform = "none";
+        }
+
+        gameState.training = Math.min(100, gameState.training + 12);
+        gameState.happiness = Math.max(0, gameState.happiness - 5);
+        showSpeech("Ouch... 🥺");
+        logEvent(`Hai sgridato ${gameState.dogName}. Ha imparato la lezione! (+Addestramento)`, "good");
+        
+        gameState.activeMischiefObj = null;
+        updateUI();
+    }
+
+    function interactObject(objName) {
+        if (gameState.isSleeping) return;
+
+        if (gameState.isMischiefActive && gameState.activeMischiefObj === objName) {
+            showSpeech("Bau! 🐾");
+            logEvent(`Hai distratto ${gameState.dogName} dal dispetto.`, "good");
+            gameState.isMischiefActive = false;
+            document.getElementById('mischief-alert').style.display = 'none';
+            
+            const objElem = document.getElementById(`obj-${objName}`);
+            if (objElem) objElem.style.transform = "none";
+            gameState.activeMischiefObj = null;
+            return;
+        }
+
+        // Interazioni ambientali standard per gli 8 oggetti quando non c'è un dispetto attivo
+        let speechOptions = [];
+        let logMessage = "";
+        let anim = null;
+
+        if (objName === 'cuscino') {
+            speechOptions = ["Questo è mio.", "Mmm... profuma di casa.", "Un pisolino qui ci starebbe proprio.", "Zzz..."];
+            const cuscinoLogs = [
+                `${gameState.dogName} si accoccola comodamente sul cuscino. 🛋️`,
+                `${gameState.dogName} annusa il cuscino cercando la posizione ideale.`,
+                `${gameState.dogName} fissa il cuscino meditando un pisolino.`
+            ];
+            logMessage = cuscinoLogs[Math.floor(Math.random() * cuscinoLogs.length)];
+            anim = 'anim-happy';
+        } else if (objName === 'calzino') {
+            speechOptions = ["Oh! Un calzino!", "Questo profumo lo conosco...", "Posso prenderlo?", "Yip!"];
+            const calzinoLogs = [
+                `${gameState.dogName} osserva il calzino con aria sorniona. 🧦`,
+                `${gameState.dogName} dà una leggera zampata al calzino.`,
+                `${gameState.dogName} annusa il calzino incuriosito.`
+            ];
+            logMessage = calzinoLogs[Math.floor(Math.random() * calzinoLogs.length)];
+            anim = 'anim-walk';
+        } else if (objName === 'pianta') {
+            speechOptions = ["Sniff sniff... interessante.", "Posso annusare?", "Non la mangio... forse.", "Bau?"];
+            const piantaLogs = [
+                `${gameState.dogName} annusa delicatamente le foglie della pianta. 🪴`,
+                `${gameState.dogName} scruta la pianta con aria studiosa.`,
+                `${gameState.dogName} dà un piccolo colpetto di naso alla pianta.`
+            ];
+            logMessage = piantaLogs[Math.floor(Math.random() * piantaLogs.length)];
+        } else if (objName === 'ciabatta') {
+            speechOptions = ["Questa la conosco...", "Un piccolo morso?", "No no... faccio il bravo.", "Bau!"];
+            const ciabattaLogs = [
+                `${gameState.dogName} guarda la ciabatta con tentazione. 🥿`,
+                `${gameState.dogName} appoggia il mento vicino alla ciabatta.`,
+                `${gameState.dogName} annusa la ciabatta ricordando vecchie avventure.`
+            ];
+            logMessage = ciabattaLogs[Math.floor(Math.random() * ciabattaLogs.length)];
+        } else if (objName === 'tappeto') {
+            speechOptions = ["Questo è un buon posto.", "Sniff sniff...", "Mi piace questo tappeto.", "Girotondo!"];
+            const tappetoLogs = [
+                `${gameState.dogName} si stiracchia beatamente sul tappeto. 🧹`,
+                `${gameState.dogName} annusa la trama del tappeto.`,
+                `${gameState.dogName} si rotola giocosamente sul tappeto.`
+            ];
+            logMessage = tappetoLogs[Math.floor(Math.random() * tappetoLogs.length)];
+            anim = 'anim-happy';
+        } else if (objName === 'cavi') {
+            speechOptions = ["Oh... cosa sono?", "Mmm... meglio non toccare.", "No Briciola, quelli non si mordono!", "Attento!"];
+            const caviLogs = [
+                `${gameState.dogName} guarda i cavi elettrici con curiosità. 🔌`,
+                `${gameState.dogName} inclina la testa di lato esaminando i cavi.`,
+                `${gameState.dogName} si allontana dai cavi con aria giudiziosa.`
+            ];
+            logMessage = caviLogs[Math.floor(Math.random() * caviLogs.length)];
+        } else if (objName === 'spazzatura') {
+            speechOptions = ["Qui c'è qualcosa di interessante...", "Sniff sniff...", "Non dovrei guardare, vero?", "Gulp!"];
+            const spazzaturaLogs = [
+                `${gameState.dogName} dà una rapida annusata al cestino. 🗑️`,
+                `${gameState.dogName} scruta la spazzatura con aria sospetta.`,
+                `${gameState.dogName} resiste alla tentazione di rovistare.`
+            ];
+            logMessage = spazzaturaLogs[Math.floor(Math.random() * spazzaturaLogs.length)];
+        } else if (objName === 'scatola') {
+            speechOptions = ["Ci entro?", "Sembra abbastanza grande...", "Cosa ci sarà dentro?", "Bau!"];
+            const scatolaLogs = [
+                `${gameState.dogName} esamina la scatola di cartone. 📦`,
+                `${gameState.dogName} dà una zampata esplorativa alla scatola.`,
+                `${gameState.dogName} immagina di poter entrare nella scatola.`
+            ];
+            logMessage = scatolaLogs[Math.floor(Math.random() * scatolaLogs.length)];
+            anim = 'anim-walk';
+        }
+
+        const chosenSpeech = speechOptions[Math.floor(Math.random() * speechOptions.length)];
+        showSpeech(chosenSpeech);
+        logEvent(logMessage);
+        if (anim) {
+            animateDog(anim);
+        }
+        updateUI();
+    }
+
+    /* ===================================================
+       AZIONI DI CURA E INTERAZIONE
+       =================================================== */
+    function feedDog() {
+        if (gameState.isSleeping) return;
+        if (gameState.hunger >= 95) {
+            showSpeech("Full! 100%");
+            return;
+        }
+        gameState.hunger = Math.min(100, gameState.hunger + 35);
+        gameState.bladder = Math.max(0, gameState.bladder - 15);
+        showSpeech("Yummy! 🍖");
+        logEvent(`Hai dato da mangiare a ${gameState.dogName}.`);
+        animateDog('anim-happy');
+        
+        if (Math.random() < 0.4) {
+            setTimeout(triggerFart, 1200);
+        }
+        
+        updateUI();
+    }
+
+    function walkDog() {
+        if (gameState.isSleeping) return;
+        if (gameState.energy < 20) {
+            showSpeech("Too tired... 😴");
+            return;
+        }
+        gameState.energy = Math.max(0, gameState.energy - 25);
+        gameState.bladder = 100;
+        gameState.happiness = Math.min(100, gameState.happiness + 25);
+        gameState.hygiene = Math.max(0, gameState.hygiene - 15);
+        showSpeech("Yippee! 🦮");
+        logEvent(`Bella passeggiata con ${gameState.dogName}! Vescica svuotata.`);
+        animateDog('anim-walk');
+        updateUI();
+    }
+
+    function playDog() {
+        if (gameState.isSleeping) return;
+        if (gameState.energy < 15) {
+            showSpeech("No energy... 💤");
+            return;
+        }
+        gameState.energy = Math.max(0, gameState.energy - 20);
+        gameState.happiness = Math.min(100, gameState.happiness + 20);
+        gameState.hunger = Math.max(0, gameState.hunger - 10);
+        showSpeech("Fun! 🎾");
+        logEvent(`Hai giocato con ${gameState.dogName}.`);
+        animateDog('anim-happy');
+        updateUI();
+    }
+
+    function washDog() {
+        if (gameState.isSleeping) return;
+        gameState.hygiene = 100;
+        gameState.happiness = Math.max(0, gameState.happiness - 5);
+        showSpeech("Splish Splash! 🛁");
+        logEvent(`Hai lavato e spazzolato ${gameState.dogName}. Ora è pulitissimo!`, "good");
+        updateUI();
+    }
+
+    function sleepDog() {
+        if (gameState.isSleeping) {
+            wakeUp();
+        } else {
+            gameState.isSleeping = true;
+            showSpeech("Zzz...");
+            logEvent(`${gameState.dogName} sta dormendo.`);
+            document.getElementById('eye-left').style.display = 'none';
+            document.getElementById('eye-right').style.display = 'none';
+            document.getElementById('eyes-closed').style.display = 'block';
+            updateDogTransform();
+            updateUI();
+        }
+    }
+
+    function wakeUp() {
+        gameState.isSleeping = false;
+        showSpeech("Awwwn! ☀️");
+        logEvent(`${gameState.dogName} si è svegliato!`);
+        document.getElementById('eye-left').style.display = 'block';
+        document.getElementById('eye-right').style.display = 'block';
+        document.getElementById('eyes-closed').style.display = 'none';
+        updateDogTransform();
+        updateUI();
+    }
+
+    function vetDog() {
+        if (!gameState.isSick && gameState.health > 80) {
+            showSpeech("Healthy! 🩺");
+            logEvent(`Il veterinario dice che ${gameState.dogName} sta benissimo.`);
+            return;
+        }
+        gameState.isSick = false;
+        gameState.health = 100;
+        showSpeech("Feel better! ❤️");
+        logEvent(`Il veterinario ha curato ${gameState.dogName}. Salute ripristinata!`, "good");
+        document.getElementById('dog-wrapper').classList.remove('anim-sick');
+        updateUI();
+    }
+
+    function contractIllness() {
+        gameState.isSick = true;
+        showSpeech("Cough... 🤒");
+        logEvent(`${gameState.dogName} si è ammalato! Portalo dal veterinario.`, "warn");
+        document.getElementById('dog-wrapper').classList.add('anim-sick');
+    }
+
+    function petDog() {
+        if (gameState.isSleeping) return;
+        gameState.happiness = Math.min(100, gameState.happiness + 5);
+        showSpeech("Purr... ❤️️");
+        animateDog('anim-happy');
+        updateUI();
+    }
+
+    /* ===================================================
+       UTILITÀ INTERFACCIA ED EFFETTI VISIVI
+       =================================================== */
+    function switchScene(sceneName) {
+        gameState.currentScene = sceneName;
+        
+        document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.btn-scene').forEach(b => b.classList.remove('active'));
+
+        document.getElementById(`scene-${sceneName}`).classList.add('active');
+        document.getElementById(`btn-scene-${sceneName}`).classList.add('active');
+
+        renderRoomPoop();
+    }
+
+    function showSpeech(text) {
+        const bubble = document.getElementById('speech-bubble');
+        bubble.innerText = text;
+        bubble.style.display = 'block';
+        setTimeout(() => {
+            bubble.style.display = 'none';
+        }, 2500);
+    }
+
+    function animateDog(className) {
+        const wrapper = document.getElementById('dog-wrapper');
+        if (gameState.isSleeping) return;
+        
+        wrapper.classList.remove('anim-idle');
+        wrapper.classList.add(className);
+        
+        setTimeout(() => {
+            wrapper.classList.remove(className);
+            wrapper.classList.add('anim-idle');
+        }, 1200);
+    }
+
+    function renameDog() {
+        const newName = prompt("Scegli un nuovo nome per il tuo cane:", gameState.dogName);
+        if (newName && newName.trim() !== "") {
+            gameState.dogName = newName.trim();
+            document.getElementById('dog-name-display').innerText = gameState.dogName;
+            logEvent(`Hai rinominato il tuo cane in ${gameState.dogName}.`);
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('dog-name-display').innerText = gameState.dogName;
+
+        const hours = Math.floor(gameState.gameMinutes / 60).toString().padStart(2, '0');
+        const mins = (gameState.gameMinutes % 60).toString().padStart(2, '0');
+        document.getElementById('clock-display').innerText = `Giorno ${gameState.gameDays} - ${hours}:${mins}`;
+
+        updateAgeAndStage();
+
+        updateBar('hunger', gameState.hunger);
+        updateBar('energy', gameState.energy);
+        updateBar('hygiene', gameState.hygiene);
+        updateBar('bladder', gameState.bladder);
+        updateBar('happiness', gameState.happiness);
+        updateBar('training', gameState.training);
+        updateBar('health', gameState.health);
+    }
+
+    function updateBar(key, value) {
+        const bar = document.getElementById(`bar-${key}`);
+        const valTxt = document.getElementById(`val-${key}`);
+        if (!bar || !valTxt) return;
+
+        const rounded = Math.round(value);
+        bar.style.width = `${rounded}%`;
+        valTxt.innerText = `${rounded}%`;
+
+        if (key !== 'training') {
+            if (rounded > 60) bar.style.backgroundColor = 'var(--success)';
+            else if (rounded > 25) bar.style.backgroundColor = 'var(--warning)';
+            else bar.style.backgroundColor = 'var(--accent)';
+        }
+    }
+
+    function logEvent(msg, type = "normal") {
+        const logBox = document.getElementById('event-log');
+        const item = document.createElement('div');
+        item.className = `log-item ${type}`;
+        
+        const hours = Math.floor(gameState.gameMinutes / 60).toString().padStart(2, '0');
+        const mins = (gameState.gameMinutes % 60).toString().padStart(2, '0');
+        
+        item.innerText = `[${hours}:${mins}] ${msg}`;
+        logBox.insertBefore(item, logBox.firstChild);
+    }
+
+    function showModal(title, desc) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-desc').innerText = desc;
+        document.getElementById('modal-overlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').style.display = 'none';
+    }
+
+    function gameOver() {
+        clearInterval(gameLoopInterval);
+        showModal("Game Over", `${gameState.dogName} non ce l'ha fatta... Assicurati di prestare più attenzione ai suoi bisogni la prossima volta!`);
+    }
+
+    /* ===================================================
+       INIZIALIZZAZIONE GIOCO
+       =================================================== */
+    function initGame() {
+        loadGame();
+        renderRoomPoop();
+        updateUI();
+        gameLoopInterval = setInterval(gameLoop, GAME_CONFIG.tickRateMs);
+    }
+
+    window.onload = initGame;
+
 </script>
 </body>
 </html>
